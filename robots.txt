@@ -1,0 +1,15 @@
+#robots.txt
+User-agent: *
+#reduce la sobre carga del editor
+Crawl-delay: 10
+#directorios
+disallow: /img/
+disallow: /js/
+disallow: /scss/
+disallow: /css/
+#archivos
+disallow: 404.html
+disallow: /package-lock.json
+disallow: /package.json
+#dirección del sitemap.xml
+https://miguelcrrlia.github.io/PFCorrealia/sitemap.xml

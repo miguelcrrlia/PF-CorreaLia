@@ -1,0 +1,74 @@
+@media only screen and (orientation: portrait){
+    @media only screen and (max-width: 992px){
+        @include tablet();
+    }
+    /*No utilizo el metodo mobile first porque ya tenía hechos los grid del modo desktop antes de aprender hacerlo*/
+    @media only screen and (max-width: 575.98px){
+        @include mobile();
+     }
+}
+@media only screen and (orientation: landscape){
+    @media only screen and (max-width: 992px){
+        @include tablet();
+        .navegador{
+            position: static;
+        }
+        aside{
+            section{
+                margin-bottom: 5%;
+                align-content: center;
+                img{
+                    height: 75vh;
+                    width: auto;
+                }
+            a{
+                margin-top: 5%;
+                img{
+                    height: 90vh;
+                    width: auto;
+                }
+            }
+            }
+        }
+        .navegador__accordion{
+            position: sticky;
+            top: 0;
+        }
+        .club__a-position{
+            margin-top: -15rem;
+        }
+        /*Agrega el ítem Menú del accordion*/
+        .nav__item{
+        display: block;
+        }
+        .tienda__buscar--flex{
+            top: 5px;
+        }
+    } 
+    @media only screen and (max-width: 575.98px){
+        @include mobile();
+        .navegador{
+            position: static;
+        }
+        aside{
+            section{
+                img{
+                    height: 80vh;
+                    width: auto;
+                }
+                a{
+                    img{
+                        height: 90vh;
+                        width: auto;
+                    }
+                }
+            }
+        }
+        .club__a-position{
+            margin-top: -15rem;
+        }
+        .navegador-error{
+            position: static;
+        }
+     }
+}

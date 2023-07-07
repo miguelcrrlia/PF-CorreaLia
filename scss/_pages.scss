@@ -1,0 +1,260 @@
+figure{
+    height: 100%;
+    margin: 3px 0;
+    border: dotted 1px map-get($colors, uno);
+    padding: 5%;
+    background-color: map-get($colors, tres);
+    figcaption{
+        height: 20%;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        font-weight: $textBold;
+        font-size: 1.3rem;
+        text-align: center;
+        p{
+            height: 100%;
+            margin: 0 0.5rem;
+            font-weight: $textLight;
+            font-size: 1rem;
+            text-align: left;
+            line-height: 1.3rem;   
+        }
+    }
+}
+/*Tamaño de las imágenes de la tienda*/
+figure img{
+    width: 80%;
+    margin:  0 3px;
+    border: solid 1px rgb(62, 64, 149);
+}
+/*Pone hacia la derecha el form para buscar en la tienda*/
+.tienda__buscar--flex{
+    @include flex(row, nowrap, flex-end, normal);
+    position: sticky;   
+    top: 10.3rem;
+    z-index: 4;
+    & div{
+        position: relative;
+    }
+}
+.lista__buscar{
+    display: none;
+}
+/*Para que no quede atrás de la lupa el texto que se ingresa en el <input> "buscar"*/
+.buscar__input{
+    width: 10rem;
+    border: 1.5px solid map-get($colors, uno);
+    padding-right: 20px;
+    padding-left: 3px;
+    color: map-get($colors, uno);
+}
+/*formato de la lupa*/
+.buscar__button{
+    position: absolute;
+    width: 1rem;
+    left: 8.75rem;
+    top: 1.5px;
+    border-style: none;
+    background-image: url(img/srch.svg);
+    background-size: 100%;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: transparent;
+    color: transparent;
+    &:hover{
+        background-image: url(img/srchy.svg);
+        color: transparent;
+    }
+}
+/*Para que el carrito pueda entrar en el botón de "añadir al carrito"*/
+.figure__button{
+    width: 8rem;
+    margin: 4% 0;
+    border-style: none;
+    padding-left: 0.20rem;
+    padding-right: 1.563rem;
+    background-image: url(img/crtdd.svg);
+    background-position: center;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    color: map-get($colors, siete);
+    font-size: map-get($fontSize, uno);
+    &:hover{
+    background-image: url(img/crtddy.svg);
+    color: map-get($colors, dos);
+ 
+    }
+    &:active{
+        animation-name: achicar;
+        animation-duration: 0.2s;
+        animation-timing-function: linear; 
+    }
+}
+.a--format{
+    width: 100px;
+}
+.calendario{
+    border:solid 1px #777;
+    width: 800px; 
+    height: 600px; 
+}
+/* Uso display: contents para que me deje aplicar grid a los elementos que están dentro del main */
+.club__main{
+    display: contents;
+    position: relative;
+} 
+.club__nav ul{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+/* Uso margin-top: -10rem para compensar el tamaño de la nav, ya que sino quedaría detrás de ella la sección hacia donde te lleva <a>*/
+.club__a-position{
+    position: absolute;
+    margin-top: -10rem;
+}
+.encabezado--format{
+    @include fullWidthHeight();
+    display: flex;
+    flex-direction: column;
+}
+.encabezado__img{
+    height: auto;
+    object-fit: contain;
+}
+.contacto__form{
+    width: 60%;
+}
+.contacto__inputs{
+    @include flex(row, nowrap, flex-end, normal); 
+    margin-top: 5px;  
+}
+.contacto__inputs input{
+    margin-left: 10px;
+}
+.contacto__input-margin{
+    margin-left: 10px;
+}
+.contacto__mensaje{
+    display: flex;
+    flex-direction: column;
+}
+/* Separa un poco los botones de prev y next del carousel */
+.carousel__button{
+    margin: 0 -20px;
+}
+/* Cambia el botón de cerrar del modal */
+.button__close-color{
+    background-image: url(img/cls.svg);
+    opacity: 1;
+}
+/* El puntero del mouse cambia a lupa encima de las imágenes del carousel */
+.lupa{
+    cursor: url(img/lupa.svg), auto;
+}
+/* Display: none para desktop */
+.navegador__accordion{
+    display: none;
+}
+/* Cambio algunos parámetros del botón del accordion de Bootstrap */
+.accordion-button{
+    background-color: transparent;
+    border-color: transparent;
+    margin: 0;
+    padding: 0;
+    &::after{
+        height: 3em;
+        width: 3em;
+        margin: auto;
+        background-image: url(img/arrowdwn.svg);
+        background-size: 100%;
+    }
+    &:not(.collapsed)::after{
+        background-image: url(img/arrowdwn.svg);
+    }
+    &:not(.collapsed){
+        background-color: transparent;
+    }
+    & .collapsed{
+        background-color: transparent;
+    }   
+}
+.accordion-body{
+    margin: 0;
+    padding: 0;
+}
+.accordion{
+    background-color: transparent;
+    --bs-accordion-border-color: transparent;
+    --bs-accordion-btn-focus-border-color: transparent;
+    --bs-accordion-btn-focus-box-shadow: transparent;
+    --bs-accordion-border-radius: 0;
+}
+.accordion__item{
+    background-color: transparent;
+}
+.accordion__ul{
+    padding: 0;
+}
+/*Clases para la página error 404*/
+.navegador-error__lista{ 
+    padding-left: 2%;
+    @include flex(column, nowrap, flex-start, flex-start);
+    font-weight: 700;
+    font-size: map-get($fontSize, ocho);
+}
+/*Imágen para aviso de página error 404*/
+.error__image{
+    margin-top: 1.5%;
+    @include flex(column, nowrap, space-between, center);
+    svg{
+        margin-bottom: 1.5%;
+        height: 50vh;
+    }
+}
+/*Te lleva al formulario compensando la nav*/
+.a__formulario{
+    position: absolute;
+    margin-top: -11rem;
+}
+/*Aqui pongo todos los estilos del archivo svg de la imagen de la página error 
+(me pareció pertinente ya que si cambia la paleta de colores del sitio esta imagen también debe sufrir cambios)*/
+.str16 {stroke:#FEFEFE;stroke-width:10.51;stroke-miterlimit:22.9256}
+    .str18 {stroke:#FEFEFE;stroke-width:10.51;stroke-miterlimit:22.9256}
+    .str17 {stroke:#FEFEFE;stroke-width:10.51;stroke-miterlimit:22.9256}
+    .str22 {stroke:#FEFEFE;stroke-width:52.56;stroke-miterlimit:22.9256}
+    .str21 {stroke:#FEFEFE;stroke-width:52.56;stroke-miterlimit:22.9256}
+    .str15 {stroke:#FEFEFE;stroke-width:19.86;stroke-miterlimit:22.9256}
+    .str19 {stroke: map-get($colors, uno);stroke-width:19.86;stroke-miterlimit:22.9256}
+    .str0 {stroke:#FEFEFE;stroke-width:52.56;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256}
+    .str20 {stroke: map-get($colors, uno);stroke-width:10.51;stroke-miterlimit:22.9256}
+    .str2 {stroke:#FEFEFE;stroke-width:29.89;stroke-miterlimit:22.9256}
+    .str8 {stroke:#FEFEFE;stroke-width:29.89;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256}
+    .str3 {stroke:#FEFEFE;stroke-width:29.89;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256}
+    .str1 {stroke:#FEFEFE;stroke-width:29.89;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256}
+    .str13 {stroke:#FEFEFE;stroke-width:29.89;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256}
+    .str9 {stroke:#FEFEFE;stroke-width:29.89;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256}
+    .str10 {stroke:#FEFEFE;stroke-width:29.89;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256}
+    .str5 {stroke:#FEFEFE;stroke-width:29.89;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256}
+    .str12 {stroke:#FEFEFE;stroke-width:29.89;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256}
+    .str14 {stroke:#FEFEFE;stroke-width:29.89;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256}
+    .str7 {stroke:#FEFEFE;stroke-width:29.89;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256}
+    .str6 {stroke:#FEFEFE;stroke-width:29.89;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256}
+    .str11 {stroke:#FEFEFE;stroke-width:29.89;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256}
+    .str4 {stroke:#FEFEFE;stroke-width:29.89;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:22.9256}
+    .fil2 {fill:none}
+    .fil6 {fill:#FEFEFE}
+    .fil3 {fill: map-get($colors, dos)}
+    .fil5 {fill: map-get($colors, dos)}
+    .fil0 {fill: map-get($colors, uno)}
+    .fil4 {fill: map-get($colors, dos)}
+    .fil7 {fill:#FEFEFE;fill-rule:nonzero}
+    .fil1 {fill:#FEFEFE;fill-rule:nonzero}
+    .svg--animation{
+        animation-name: beacon;
+        animation-delay: 0;
+        animation-iteration-count: infinite;
+        animation-duration: 1s;
+        animation-timing-function: ease-in-out;
+    }

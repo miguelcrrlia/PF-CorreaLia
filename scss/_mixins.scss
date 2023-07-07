@@ -1,0 +1,514 @@
+@mixin flex($direction, $wrap, $justify, $align)
+{
+    display: flex;
+    flex-direction: $direction;
+    flex-wrap: $wrap;
+    justify-content: $justify;
+    align-items: $align;
+}
+//Ejemplo: @include flex(row, wrap, center, stretch)
+
+@mixin fullWidthHeight()
+{
+    height: 100%;
+    width: 100%;
+}
+
+//Mixins para los media queries, 
+//así no escribo dos veces el mismo código.
+@mixin tablet()
+{
+    .grid{
+        grid-template-columns: 100vw;
+        grid-template-rows: 10rem auto auto auto auto;
+        grid-template-areas: 
+        "nav"
+        "head"
+        "main"
+        "aside"
+        "footer";
+    } 
+    .navegador{
+        grid-template-columns: 25% 55% 20%;
+        grid-template-rows: 25% 75%;
+        grid-area: nav;
+    }   
+    .navegador__logo{
+        display: flex;
+        grid-column-start: 1;
+        grid-column-end: 2;
+        grid-row-start: 1;
+        grid-row-end: 3;
+    }
+    .encabezado{
+        grid-area: head;
+        & img{
+            width: 100%;
+        }
+    } 
+    .principal{
+        grid-area: main;
+    }
+    .lado{
+        align-content: center;
+        grid-area: aside;
+    }
+    .pie{
+        display: flex;
+        flex-direction: column;
+        height: auto;
+        grid-area: footer;
+        padding-top: 2%;
+    }
+    .navegador__links{
+        height: 100%;
+        margin-top: 5px;
+        padding: 0;
+        display: flex;
+        grid-column-start: 3;
+        grid-column-end: 4;
+        grid-row-start: 1;
+        grid-row-end: 2;
+        justify-content: flex-end;
+        ul li{
+            display: none;
+        }
+        /*z-index para que funcione <a> (la razón es que está en grids superpuestos)*/
+        .cart{
+            height: 100%;
+            display: flex;
+            z-index: 2;
+        }
+    }
+    .navegador__menu{
+        display: flex;
+        height: 100%;
+        width: 100%;
+        grid-column-start: 2;
+        grid-column-end: 4;
+        grid-row-start: 1;
+        grid-row-end: 3;
+        font-weight: 700;
+        font-size: map-get($fontSize, dos);
+    }
+    .navegador__lista{
+        height: 100%;
+        width: 100%;
+        position: relative;
+        @include flex(column, wrap, center, center);
+        padding: 0;
+    }
+    aside {
+        section{
+            align-content: center;
+         img{
+            height: auto;
+            width: 80vw;
+        }
+         a img{
+            height: 60vh;
+            width: auto;
+        }
+        button{
+            font-size: map-get($fontSize, seis);
+        }
+        }
+    }
+    table{
+        display: block;
+        height: 50vh;
+        width: 80vw;
+        overflow: auto;
+    }
+    footer{
+        & form{
+            height: auto;
+            width: 80%;
+            margin: 10px 0;
+            padding-bottom: 2%;
+            label{
+                padding-bottom: 1%;
+            }
+        }
+        & section{
+            height: auto;
+        }
+        & nav{
+            height: auto;
+            width: 60%;
+            margin: 10px;
+             & ul li a svg{
+                height: auto;
+                width: 2rem;
+            }
+        }
+        & iframe{
+            width: 80%;
+            height: 300px;
+            margin: 10px;
+        }
+    }
+    .encabezado__img{
+        object-fit: contain;
+        height: 100%;
+    }
+    .club__grid{
+        position: relative;
+        grid-template-columns: 100vw;
+        grid-template-rows: 10rem auto auto auto auto;
+        grid-template-areas: 
+        "nav"
+        "head"
+        "mainnav"
+        "seccion"
+        "footer";
+    }
+    .club__nav{
+        display: none;
+    }
+    .accordion{
+        background-color: map-get($colors, ocho);
+    }
+    /* z-index para que esté por encima del form del footer */
+    .navegador__accordion{
+        position: sticky;
+        top: 10rem;
+        display: flex;
+        justify-content: center;
+        z-index: 2;
+        margin: 0;
+        padding: 0;
+    }
+    .accordion--border{
+        border-color: map-get($colors , uno);
+        border-top: 0;
+        border-right: 0;
+        border-bottom: 1.5px;
+        border-left: 0;
+        border-style: solid;
+    }
+    .navegador__accordion--format{   
+        height: 100%;
+        background-color: map-get($colors, ocho);
+        font-weight: 700;
+        font-size: map-get($fontSize, seis);
+        justify-content: center;
+        border: 0;
+    }
+    .accordion__ul{
+        display: flex;
+        flex-direction: column;
+        flex-wrap: wrap;
+        align-items: center;
+        padding: 10px;
+    }
+    /*Saca el ítem Menú del accordion*/
+    .nav__item{
+        display: none;
+    }
+    /* Uso margin-top: -22.5rem para compensar el tamaño de la nav, ya que sino quedaría detrás de ella la sección hacia donde te lleva <a>*/
+    .club__a-position{
+        margin-top: -22.5rem;
+    }
+    .calendario{
+        width: 80vw;
+        height: 50vh;
+    }
+    .video{
+        width: 80vw;
+    }
+    .pages__grid{
+        display: grid;
+        grid-template-columns: 100vw;
+        grid-template-rows: 10rem auto auto auto;
+        grid-template-areas: 
+        "nav"
+        "head"
+        "main"
+        "footer";
+    }
+    .contacto__form{
+        width: 90%;
+    }
+    fieldset{
+        min-inline-size: 90%;
+        & ul{
+            width: 90%;
+            & li{
+                width: 80%;
+                display: flex;
+                flex-direction: column;
+            } 
+        }
+    }
+    .contacto__li-row{
+            flex-direction: row;
+            justify-content: flex-start;
+        }
+    .contacto__mensaje{
+        width: 100%;
+    }
+    textarea{
+        width: 90%;
+    }
+    figure{
+        margin: 3px 0;
+        border: dotted 1px map-get($colors, uno);
+        padding: 5%;
+        background-color: map-get($colors, tres);
+        & figcaption{
+            font-weight: 700;
+            font-size: 1.3rem;
+            text-align: center;
+            & p{
+                margin: 0 0.5rem;
+                font-weight: 200;
+                font-size: 1rem;
+                text-align: left;
+                line-height: 1.3rem;
+            }
+        }
+    }
+    .a__formulario{
+        position: absolute;
+        margin-top: -10rem;
+    }
+    /*Clase de la página de error 404*/
+    .error__image{
+        margin-top: 7.5%;
+        img{
+            height: 60vh;
+        }
+    }
+}
+@mixin mobile{
+    .grid{
+        grid-template-columns: 100vw;
+        grid-template-rows: auto auto auto auto auto;
+        grid-template-areas: 
+        "nav"
+        "head"
+        "main"
+        "aside"
+        "footer";
+       } 
+       /*Agrego otra fila para hacer lugar para cuando se despliegue el botón hamburguesa*/
+        .navegador{
+            padding: 5px 0;
+            display: grid;
+            grid-template-columns: 35% 50%;
+            grid-template-rows: auto auto;
+            grid-template-areas: 
+            "log centrado"
+            "drop drop";
+            position: sticky;
+            top: 0;
+        }   
+        .encabezado{
+            grid-area: head;
+            & img{
+               height: 100%;
+           }
+        } 
+        .principal{
+            grid-area: main;
+        }
+        .lado{
+            align-content: center;
+            grid-area: aside;
+        }
+        .pie{
+            display: flex;
+            flex-direction: column;
+            height: auto;
+            grid-area: footer;
+            padding-top: 2%;
+        }
+        .navegador__links{
+            display: none;
+        }
+        .navegador__hamburger{
+            grid-area: centrado;
+            display: flex;
+            flex-wrap: nowrap;
+            justify-content: flex-end;
+        }
+        nav div ul{
+            background-color: map-get($colors, ocho);
+            font-size: map-get($fontSize, ocho);
+        }
+        aside{
+            section{
+                img{
+                    height: auto;
+                    width: 90vw;
+                }
+                a{
+                    img{
+                        height: auto;
+                        width: 75vw;
+                    }
+                }       
+                button{
+                    font-size: map-get($fontSize, seis);
+                }
+            }
+        } 
+        table{
+            display: block;
+            height: 50vh;
+            width: 80vw;
+            overflow: auto;
+        } 
+        footer{
+           & form{
+               height: auto;
+               width: 100%;
+               margin: 10px 0;
+           }
+           & section{
+               height: auto;
+           }
+           & nav{
+               height: auto;
+               width: 80%;
+           }
+           & iframe{
+               width: 80%;
+               height: 300px;
+               margin: 10px 0;
+           }
+        }
+        .navegador__logo{
+            margin-left: 5px;
+            grid-area: log;
+            a{
+                content: url(../img/logosnnmbr.svg);
+                & img{
+                    display: none;
+                }
+             }
+        }
+        textarea{
+            width: 100%;
+            height: 35%;
+        }
+        .navegador__menu{
+            grid-area: drop;
+        }
+        .navegador__lista{ 
+            padding-left: 2%;
+            @include flex(column, nowrap, flex-start, flex-start);
+            font-weight: 700;
+            font-size: map-get($fontSize, ocho);
+        }
+        /*Aquí saco el height: 100% para que la animación trabaje bien. 
+        Además uso !important ya que no pude encontrar que hace que el borde no aparezca*/
+        .navegador__lista--row{
+           height: auto;
+           margin-top: 5px;
+           border-style: dashed !important;
+           border-left: 0px;
+           border-right: 0px;
+           border-top: 1.5px;
+           border-bottom: 0;
+        }
+        .pages__grid{
+            display: grid;
+            grid-template-columns: 100vw;
+            grid-template-rows: auto auto auto auto;
+            grid-template-areas: 
+            "nav"
+            "head"
+            "main"
+            "footer";
+        }
+        .club__grid{
+            position: relative;
+            grid-template-columns: 100vw;
+            grid-template-rows: auto auto auto auto auto;
+            grid-template-areas: 
+            "nav"
+            "head"
+            "mainnav"
+            "seccion"
+            "footer";
+            /*Elijo position: static ya que el accordion está sticky y el navegador está en un grid con row auto*/
+            .navegador{
+                position: static;
+            }
+        }
+        .club__nav{
+            top: 10rem;   
+            height: 100%;
+            background-color: map-get($colors, ocho);
+            font-weight: 700;
+            font-size: map-get($fontSize, seis);
+            justify-content: center;
+        }
+        .navegador__accordion{
+            top: 0;
+        }
+        .club__a-position{
+            margin-top: -14.5rem;
+        }
+        /*Agrega el ítem Menú del accordion*/
+        .nav__item{
+            display: block;
+            }
+        /*Queda static porque el heigth de la nav es auto*/
+        .tienda__buscar--flex{
+            position: static;
+        }
+        .error__image{
+            img{
+                height: 35vh;
+                margin-bottom: 5.5%;
+            }
+        }
+        .lista__buscar{
+            width: 100%;
+            @include flex (row, nowrap, space-between, normal);
+            form{
+                display: flex;
+                align-items: center;
+            }
+            a{
+                width: auto;
+                margin-right: 10px;
+                svg{
+                    width: 1em;
+                    fill: map-get($colors, uno);
+                }
+            }
+        }
+        .tienda__buscar--flex{
+            display: none;
+        }
+        .buscar__input{
+            height: 1.4em;
+            width: 65%;
+            padding-right: 47px;
+        }
+        .buscar__button{
+            width: 2rem;
+            left: auto;
+            right: 37%;
+            top: 9.5px;
+        }
+        .error__main{
+            align-items: center;
+        }
+        .error__image{
+            width: 70%;
+            svg{
+                height: auto;
+                width: 100%;
+            }
+        }
+        /*Este margin-top trata de ser lo más conveniente ya que la nav tiene height:auto*/
+        .a__formulario{
+            position: absolute;
+            margin-top: -10rem;
+        }
+}

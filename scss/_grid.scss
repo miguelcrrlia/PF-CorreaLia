@@ -1,0 +1,171 @@
+.grid{
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    grid-template-rows: 10rem auto auto 15rem;
+    grid-template-areas:
+    "nav nav"
+    "head head" 
+    "main aside"
+    "footer footer";
+}
+/* defino z-index: 3 para que quede por encima del form de busqueda y de la nav del club */
+.navegador{
+    position: sticky;
+    top: 0;
+    height: 100%;
+    display: grid;
+    grid-area: nav;
+    grid-template-columns: 15% 85%;
+    grid-template-rows: 25% 75%;
+    grid-template-areas:
+    "log alineadoderecha"
+    "log  centrado";
+    padding: 5px 15px;
+    z-index: 3;
+    animation-name: reflejo;
+    animation-delay: 0.17s;
+    animation-iteration-count: 1;
+    animation-direction: alternate;
+    animation-duration: 0.6s;
+    animation-timing-function: ease-in-out;
+}
+.encabezado{ 
+    grid-area: head;
+}
+.principal{
+    grid-area: main;
+}
+.lado{
+    grid-area: aside;
+    
+}
+.pie{
+    grid-area: footer;
+}
+.navegador__links{
+    display: flex;
+    grid-area: alineadoderecha;
+    justify-content: flex-end;
+    padding-top: 5px;
+}
+.navegador__menu{
+    grid-area: centrado;
+}
+.navegador__logo{
+    height: 100%;
+    grid-area: log;
+    a img{
+    height: 100%;
+    width: 100%;
+    transition: all 0.1s;
+    &:hover{
+        transform: scale(1.07);
+    }
+    }
+}
+.navegador__lista{
+    height: 100%;
+    width: 80%;
+    @include flex(row, wrap, space-around, center);
+    grid-area: centrado;
+    font-weight: 700;
+    font-size: map-get($fontSize, ocho);
+}
+.club__grid{
+    display: grid;
+    grid-template-columns: 1fr 5fr;
+    grid-template-rows: 10rem auto auto 15rem;
+    grid-template-areas: 
+    "nav nav"
+    "head head"
+    "mainnav seccion"
+    "footer footer";
+}
+.club__nav{
+    grid-area: mainnav;
+    display: flex;
+    justify-content: space-around;
+    position: sticky;   
+    top: 10rem;
+    height: 10%;
+    padding: 0.5em;
+    border: 0;
+    background-color: transparent;
+    font-weight: 700;
+    font-size: map-get($fontSize, seis);
+    z-index: 1;
+}
+.club__section{
+    padding: 0 15px;
+    grid-area: seccion;
+}
+.pages__grid{
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: 10rem auto auto 15rem;
+    grid-template-areas: 
+    "nav"
+    "head"
+    "main"
+    "footer";
+}
+/*Grids de la página 404*/
+.error__grid{
+    width: 100%;
+    display: grid;
+    grid-template-columns: 100%;
+    grid-template-rows: auto auto;
+    grid-template-areas: 
+    "nav-err"
+    "main-err";
+}
+.navegador-error{
+    width: 100%;
+    padding: 5px 0;
+    grid-area: nav-err;
+    display: grid;
+    grid-template-columns: 50% 50%;
+    grid-template-rows: 7.8rem auto;
+    grid-template-areas: 
+    "log centrado"
+    "drop drop";
+    position: sticky;
+    top: 0;
+    animation-name: reflejo;
+    animation-delay: 0.17s;
+    animation-iteration-count: 1;
+    animation-direction: alternate;
+    animation-duration: 0.6s;
+    animation-timing-function: ease-in-out;
+}   
+.navegador-error__logo{
+    height: 100%;
+    padding-left: 5px;
+    grid-area: log;
+        a{
+            
+            img{
+                width: auto;
+                transition: all 0.1s;
+                &:hover{
+                    transform: scale(1.07);
+                }
+           }
+        }
+}
+.navegador-error__hamburger{
+    margin-right: 2%;
+    grid-area: centrado;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+}
+.navegador-error__menu{
+    grid-area: drop;
+}
+.error__main{
+    grid-area: main-err;
+    margin: 0;
+    @include flex(column, nowrap, space-between, normal);
+}
+

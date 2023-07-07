@@ -1,0 +1,416 @@
+*{
+    box-sizing: border-box;
+    font-family: $mainFont;
+    scrollbar-width: auto;
+    scrollbar-color: map-get($colors, uno) map-get($colors, tres);
+}
+/*formato scrollbar*/
+::-webkit-scrollbar{
+    height: 15px;
+    width: 15px;
+}
+::-webkit-scrollbar-track{
+    background-color: map-get($colors, tres);
+}
+::-webkit-scrollbar-thumb{
+    background-color:map-get($colors, uno);
+    &:hover{
+        background-color: map-get($colors, cuatro);
+    }
+}
+::-webkit-scrollbar-corner{
+    width: 15px;
+    @extend ::-webkit-scrollbar-track;
+}
+::-webkit-scrollbar-button{
+    @extend ::-webkit-scrollbar;
+    background-color: map-get($colors, tres);
+    &:single-button{
+        &:vertical{
+            &:decrement{
+                background-image: url(img/arrowup.svg);
+                background-size: 100%;
+                &:hover{
+                    background-image: url(img/arrowupy.svg);
+                    background-size: 100%;
+                }
+            }
+            &:increment{
+                background-image: url(img/arrowdwn.svg);
+                background-size: 100%;
+                &:hover{
+                    background-image: url(img/arrowdwny.svg);
+                    background-size: 100%;
+                }
+            }
+        }
+        &:horizontal{
+            &:decrement{
+                background-image: url(img/arrowlft.svg);
+                background-size: 100%;
+                &:hover{
+                    background-image: url(img/arrowlfty.svg);
+                    background-size: 100%;
+                }
+            }
+            &:increment{
+                background-image: url(img/arrowrgth.svg);
+                background-size: 100%;
+                &:hover{
+                    background-image: url(img/arrowrgthy.svg);
+                    background-size: 100%;
+                }
+            }
+        }
+    }
+    /*Quita el double-button*/
+    &:vertical:start:increment, &:vertical:end:decrement, 
+    &:horizontal:start:increment, &:horizontal:end:decrement{
+        display: none;
+    }
+}
+body{
+    background-attachment: fixed;
+    color: map-get($colors, uno);
+    background-color: map-get($colors, ocho);
+    line-height: normal;
+}
+main{
+    margin: 5px;
+    padding: 10px;
+    nav{
+        padding: 0;
+    }
+}
+nav{
+    position: sticky;
+    top: 0;
+    display: flex;
+    height: 100%;
+    padding: 5px 0 5px 5px;
+    border-bottom: solid 25px map-get($colors, uno);
+    background-color: map-get($colors, ocho);
+    a{
+        display: flex;
+       @include fullWidthHeight;
+    }
+    img{
+        @include fullWidthHeight;
+    }
+} 
+header{
+    @include flex(column, nowrap, stretch, stretch);
+    background-color: map-get($colors, ocho);
+    img{
+        height: 100%;
+        object-fit: scale-down;
+    }
+}
+section{
+    margin: 10px 0;
+}
+aside{
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    section{
+        @include flex(column, wrap, center, center);
+        align-content: flex-start;
+        padding-bottom: 15px;
+        img{
+            width: 100%;
+        }
+        a img{
+            @extend img;  
+            margin-bottom: 15px; 
+            }
+    }
+}
+footer{
+    height: 100%;
+    @include flex(row, nowrap, space-around, center);
+    border-top: solid 25px map-get($colors, uno);
+    padding: 5px 15px;
+    form{
+        width: 25%;
+        height: 35%;
+        @include flex(column, nowrap, space-between, center);
+        position: static;
+    }
+    section{
+        height: 80%;
+        @include flex(column, wrap, center, normal);
+        align-content: space-around; 
+        ul{
+            display: flex;
+            flex-direction: column;
+            padding: 0;
+            li {
+                font-weight: $textLight;
+                font-size: map-get($fontSize, dos); 
+                img{
+                    width: 0.8em;
+                }
+            }
+        }
+    }
+    nav{
+        height: auto;
+        width: 25%;
+        position: static;
+        display: flex;
+        border: 0;
+        padding: 0;
+        background-image: none;
+        background-color: transparent;
+        ul{
+            width: 100%;
+            @include flex(row, wrap, space-between, center);
+            li a svg{
+                width: 1.7rem;
+                fill: map-get($colors, uno);
+                &:hover{
+                    fill: map-get($colors, dos);
+                }
+            }
+        }
+    }
+    iframe{
+        width: 13%;
+        height: 90%;
+    }
+}
+h1, h2, h3, h4{
+    font-weight: $textBold;
+}
+h1{
+    font-size: map-get($fontSize, ocho);
+}
+h2{
+    font-size: map-get($fontSize, siete);
+}
+h3{
+    font-size: map-get($fontSize, cinco);
+}
+h4{
+    font-size: map-get($fontSize, cuatro);
+}
+p{
+    font-weight: $textNormal;
+    font-size: map-get($fontSize, tres);
+}
+/*saca al margin-botton que pone Bootstrap */
+ul{
+    margin-bottom: 0;
+    padding: 0;
+    li{
+        list-style: none;
+    }    
+}
+dl{
+    margin-left: 1em;
+    font-weight: $textBold;
+    dd{
+        margin-left: 2em;
+        font-weight: $textNormal;
+        ul li{
+            margin-left: 4em;
+            list-style: disc;
+        }
+    }
+}
+table{
+    width: 33%;
+    border: 3px solid map-get($colors, uno);
+    border-collapse: collapse;
+    font-weight: $textLight;
+    font-size: map-get($fontSize, dos);
+    text-align: center;
+    background-color: map-get($colors, tres);
+} 
+/*Uso background-clip: padding-box en especial porque en Firefox el borde quedaba detrás del background-color*/
+th{
+    border: 2px solid;
+    padding: 10px;
+    background-color: map-get($colors, cinco);
+    background-clip: padding-box;
+}
+
+td{
+    border: 1px solid;
+    padding: 10px;
+}
+/* Para poner la lupa dentro del <input> buscar*/
+form{
+    position: relative;
+    font-weight: $textNormal;
+    font-size: map-get($fontSize, dos);
+    color: map-get($colors, uno);
+    z-index: 0;
+    ul li{
+        line-height: 2em;
+    }
+}
+textarea{
+    width: 70%;
+    height: 30%;
+}
+fieldset{
+    width: 100%;
+    border: 2px;
+    border-style: solid;
+    border-color: map-get($colors, uno);
+    padding: 10px;
+    background-color: map-get($colors, tres);
+    ul li{
+        padding: 5px;
+    }
+}
+a{
+    text-decoration: none;
+    color: map-get($colors, uno);
+    &:hover{
+        color: map-get($colors, dos);
+    }
+}
+select{
+    border: 1.5px solid map-get($colors, uno);
+}
+//Class
+.navegador__links ul{
+    width: 20%;
+    @include flex(row, nowrap, space-around, normal);
+    li a{
+        height: 100%;
+        svg{
+            height: auto;
+            width: 1.5rem;
+            fill: map-get($colors, uno);
+            &:hover{
+        fill: map-get($colors, dos);
+            }
+        }
+        img{
+            width: 1.5rem;
+            &:hover{
+        fill: map-get($colors, cuatro);
+    }
+        }   
+    }
+}
+.navegador__lista--row{
+    @include fullWidthHeight();
+    display: flex;
+    flex-direction: row;
+}
+/*a-textdeco mejora el contraste con el background claro*/
+.a--textdecoration{
+    text-decoration: underline;
+    &:hover{
+        color: map-get($colors, seis);
+    }
+}/*formato para algunos headings*/
+.heading--decoration{
+    margin: 0;
+    padding: 0;
+    text-indent: 15px;
+    background-color: map-get($colors, uno);
+    color: map-get($colors, dos);
+}
+/*cambia el formato de la palabra dirección:, teléfono:, etc sin afectar lo demás*/
+.text--format{
+    font-size: map-get($fontSize, tres);
+    font-weight: $textNormal;
+}/*alinea el texto a la izquierda*/
+.text--right{
+    text-align: right;
+}
+/*deja un pequeño margen entre el borde y la letra de los <input>*/
+.input--format{
+    border: 1.5px solid rgb(62, 64, 149);
+    padding: 0 3px;
+    &:focus{
+        border-color: map-get($colors, cuatro);
+    }
+}
+/*formato de los botones*/
+.button--format{
+    border: 0;
+    padding: 1px 5px;
+    background-color: map-get($colors, uno);
+    color: map-get($colors, siete);
+    &:hover{
+        color: map-get($colors, dos);
+    }
+    &:active{
+        animation-name: achicar;
+        animation-duration: 0.2s;
+        animation-timing-function: linear;
+    }
+}
+.pie form div{
+    width: 100%;
+    @include flex(row, nowrap, space-around, normal);
+    .input--format{
+        width: 70%;
+        padding: 0 5px;
+    }    
+}
+/* Le saco el borde al botón hamburguesa */
+.navbar-toggler{
+    border: 0;
+    color: transparent;
+}
+/*Clases para que la tabla de horarios sea más fácil de leer en responsive*/
+.schedules--relative{
+    position: relative;
+}
+.schedules__days--sticky{
+    position: sticky;
+    top: 0;
+}
+.schedules__hours--sticky{
+    position: sticky;
+    left: 0;
+}
+.borde__bajo{
+    border-bottom: solid 3.1px map-get($colors, uno);
+    margin-bottom: 40px;
+}
+/*Animaciones*/
+/*Agrego esta class de Bootstrap que la saca el purgecss*/
+.collapsing {
+    height: 0;
+    overflow: hidden;
+    transition: height 0.35s ease;
+  }
+@keyframes achicar{
+    0%{transform: scale(1);}
+    25%{transform: scale(0.95);}
+    50%{transform: scale(0.9);}
+    75%{transform: scale(0.85);}
+    100%{transform: scale(0.8);}
+}
+@keyframes reflejo{
+    @for $i from 1% through 100%{
+        #{$i} {
+            //divido $i por 3.33 para que el 30% del linear-gradient recorra todo el 100% de los keyframes (100/30=3.33) 
+            border-image: linear-gradient(90deg, rgba(62,64,149,1) #{$i+((-30)+((calc(1 / 3.33))*$i))}, rgba(255,255,255,1) 
+            #{$i+((-20)+((calc(1 / 3.33))*$i))}, rgba(252,242,18,1) #{$i+((-10)+((calc(1 / 3.33))*$i))}, rgba(62,64,149,1) 
+            #{$i}) 100% 0 100% 0/0 0 25px 0 stretch;
+        }
+    }
+}
+@keyframes beacon{
+    @for $i from 1% through 50%{
+        #{$i} {
+            fill: white;
+        }
+    }
+    @for $i from 50% through 100%{
+        #{$i} {
+            fill: map-get($colors, seis);
+        }
+    }
+}
