@@ -3744,3 +3744,19 @@ figure img, figure aside section a img, aside section a figure img {
   color: rgb(255, 242, 18);
   font-size: 0.8em;
 }
+.cartSection--format {
+  display: flex;
+  flex-direction: column;
+  width: 50vw;
+}
+.buttonsCart--format {
+  margin-top: 5px;
+  display: flex;
+  justify-content: end;
+}
+#clean {
+  margin-right: 10px;
+}
+#idTable {
+  width: auto;
+}

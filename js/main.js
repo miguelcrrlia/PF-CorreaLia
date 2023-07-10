@@ -1,32 +1,66 @@
 mainProgram(articles())
+//Devuelve lo almacenado en el localStorage
+function functionJSON() {
+        let a = JSON.parse(localStorage.getItem("carrito"))
+        return a
+    }
+//Escucha a los botones del carrito
+function buttonFunction(id1, id2) {
+    id1.addEventListener("click", cleanCart)
+    id2.addEventListener("click", finishCart)
+} 
+//Borra el locaStorage
+function cleanCart() {
+    localStorage.clear()  
+    makeCart()  
+}
+//Función de finalizar la compra
+function finishCart() {
+    let cartSection = document.getElementById("cartSection")
+    let message = document.createElement("p")
+    cartSection.innerHTML = `<h3>¡Compra finalizada!</h3>`
+    cartSection.appendChild(message)
+    localStorage.clear()
+    // makeCart()
+
+}
+//Actualiza el stock corriente con respecto al carrito
 function updateArticles(articles, carrito) {   
-    if (carrito.length !== 0) {   
-        carrito.forEach((article) => {
-            let aux = articles.findIndex((el) => el.id === article.id)
-            articles[aux].stock = article.stock
-        })
+    if (carrito !== null) {
+        if (carrito.length !== 0) {   
+            carrito.forEach((article) => {
+                let aux = articles.findIndex((el) => el.id === article.id)
+                articles[aux].stock = article.stock
+            })
+        }
     }
     return articles
 }
-function addArticle(e, articles, carrito) {
+//Agrega artículos al carrito
+function addArticle(e, articles) {
+    let carrito = JSON.parse(localStorage.getItem("carrito")) || []
     let article = articles.find((el) => el.id === Number(e.target.id))
-    console.log(article.id)
     let aux = carrito.findIndex((el) => el.id === article.id) 
     if(aux !== -1) {
+        //Cuando no hay stock
         if (article.stock === 0) {
             let emptyStock = document.getElementById(article.id)
             emptyStock.classList.remove("figure__button")
             emptyStock.classList.add("figure__button__empty")
             emptyStock.innerText = "Artículo agotado"
         }   
+        //Cuando hay stock
         else {
             carrito[aux].amount ++
             carrito[aux].stock --
             carrito[aux].subtotal = Number(carrito[aux].price) * Number(carrito[aux].amount)
+            //Actualiza el localStorage
             localStorage.setItem("carrito", JSON.stringify(carrito))
-            articles = updateArticles(articles, carrito, e)
+            //Actualiza el stock de los artículos que hay en la tienda
+            articles = updateArticles(articles, carrito)
         }
     }
+    //Cuando el artículo no existe en el carrtio
     else {
         carrito.push({
             id: article.id,
@@ -37,21 +71,31 @@ function addArticle(e, articles, carrito) {
             amount: 1,
             subtotal: article.price
         })
+         //Actualiza el localStorage
         localStorage.setItem("carrito", JSON.stringify(carrito))
+        //Actualiza el stock de los artículos que hay en la tienda
         articles = updateArticles(articles, carrito)
     }
+//     console.log("este es el loca -->" + localStorage.getItem("carrito"))
+//     carrito = JSON.parse(localStorage.getItem("carrito"))
+//     carrito.forEach((el) => {
+//     console.log(el.name)
+// })
+    makeCart()
 }
-function cart(articles, carrito) {     
+function cart(articles) {     
     let addCart = document.querySelectorAll(".figure__button")
     addCart.forEach((adds) => {
-        adds.addEventListener("click", (e) => addArticle(e, articles, carrito))
+        adds.addEventListener("click", (e) => addArticle(e, articles))
     })
 }
 function makeCart() {
     let cartSection = document.getElementById("cartSection")
     let cartTable = document.createElement("table")
     cartTable.id = "idTable"
-    let auxCart = JSON.parse(localStorage.getItem("carrito"))
+    let auxCart = functionJSON()
+    console.log(auxCart + "--> auxCart que tiene el JSON")
+    cartSection.innerHTML = ""
     if (auxCart) {
         cartTable.classList.add("schedules--relative")
         cartTable.innerHTML = 
@@ -76,6 +120,7 @@ function makeCart() {
         let b = document.getElementById("b")
         let t = document.getElementById("t")
         let total = 0
+        t.innerHTML = ""
         auxCart.forEach((article) => {
             let item = document.createElement("tr")
             total += article.subtotal
@@ -92,18 +137,23 @@ function makeCart() {
             let parentElement = b.parentElement
             parentElement.insertBefore(item, b) 
         })
-        let buttonsCart = document.createElement("div")
-        buttonsCart.classList.add("d-flex", "justify-content-end")
-        buttonsCart.innerHTML = 
-        `
-            <button id="clean" class="button--format" type="button">
-                Limpiar carrito
-            </button>
-            <button id="finish" class="button--format" type="button">
-                Finalizar compra
-            </button>
-        `
-        cartSection.appendChild(buttonsCart)
+        // let buttonsCart = document.createElement("div")
+        // buttonsCart.classList.add("buttonsCart--format")
+        // buttonsCart.innerHTML = 
+        // `
+        //     <button id="clean" class="button--format" type="button">
+        //         Limpiar carrito
+        //     </button>
+        //     <button id="finish" class="button--format" type="button">
+        //         Finalizar compra
+        //     </button>
+        // `
+        // cartSection.appendChild(buttonsCart)
+        
+        let buttonClean = document.getElementById("clean")
+        let buttonFinish = document.getElementById("finish")
+        buttonFunction(buttonClean, buttonFinish)
+        // console.log(buttonClean)
     }
     else {
         let cartAlert = document.createElement("p")
@@ -112,9 +162,10 @@ function makeCart() {
     }
 }
 function showCart() {
-    let cartSection = document.getElementById("cartSection")
+    let cartSection = document.getElementById("sectionHide")
     let mainSection = document.getElementById("mainSection")
     let form_search = document.getElementById("form_search")
+    makeCart()
     cartSection.classList.toggle("hide")
     mainSection.classList.toggle("hide")
     form_search.classList.toggle("hide")
@@ -404,8 +455,8 @@ function showFilterList(articles, idDiv) {
                 })
             }
             function mainProgram(articles) {
-                let carrito = JSON.parse(localStorage.getItem("carrito")) || []
-                articles = updateArticles(articles, carrito)
+                let saveLocal = functionJSON
+                articles = updateArticles(articles, saveLocal)
                 let aux = articles
                 let filters = document.getElementById("filterCategory")
                 let order = document.getElementById("filterOrder")
@@ -419,7 +470,7 @@ function showFilterList(articles, idDiv) {
                 })
                 showFilterList(articles, "filterCategory")
                 showArticles(articles, "sectionArticles", "modalsSection")
-                cart(articles, carrito)
+                cart(articles)
                 makeCart()
                 filters.addEventListener("input", (e) => { aux = filtersFunction(e, articles)})
                 order.addEventListener("input", (e) => orderFunction(e, aux))
@@ -428,6 +479,5 @@ function showFilterList(articles, idDiv) {
                     let textSearch = search.value
                     aux = searchFunctionInside(textSearch, articles)
                 })
-
             }    
             
