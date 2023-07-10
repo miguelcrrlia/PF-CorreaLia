@@ -1,4 +1,124 @@
 mainProgram(articles())
+function updateArticles(articles, carrito) {   
+    if (carrito.length !== 0) {   
+        carrito.forEach((article) => {
+            let aux = articles.findIndex((el) => el.id === article.id)
+            articles[aux].stock = article.stock
+        })
+    }
+    return articles
+}
+function addArticle(e, articles, carrito) {
+    let article = articles.find((el) => el.id === Number(e.target.id))
+    console.log(article.id)
+    let aux = carrito.findIndex((el) => el.id === article.id) 
+    if(aux !== -1) {
+        if (article.stock === 0) {
+            let emptyStock = document.getElementById(article.id)
+            emptyStock.classList.remove("figure__button")
+            emptyStock.classList.add("figure__button__empty")
+            emptyStock.innerText = "Artículo agotado"
+        }   
+        else {
+            carrito[aux].amount ++
+            carrito[aux].stock --
+            carrito[aux].subtotal = Number(carrito[aux].price) * Number(carrito[aux].amount)
+            localStorage.setItem("carrito", JSON.stringify(carrito))
+            articles = updateArticles(articles, carrito, e)
+        }
+    }
+    else {
+        carrito.push({
+            id: article.id,
+            name: article.name,
+            price: article.price,
+            image: article.image,
+            stock: article.stock - 1,
+            amount: 1,
+            subtotal: article.price
+        })
+        localStorage.setItem("carrito", JSON.stringify(carrito))
+        articles = updateArticles(articles, carrito)
+    }
+}
+function cart(articles, carrito) {     
+    let addCart = document.querySelectorAll(".figure__button")
+    addCart.forEach((adds) => {
+        adds.addEventListener("click", (e) => addArticle(e, articles, carrito))
+    })
+}
+function makeCart() {
+    let cartSection = document.getElementById("cartSection")
+    let cartTable = document.createElement("table")
+    cartTable.id = "idTable"
+    let auxCart = JSON.parse(localStorage.getItem("carrito"))
+    if (auxCart) {
+        cartTable.classList.add("schedules--relative")
+        cartTable.innerHTML = 
+        `
+            <tr class="schedules__days--sticky">
+            <tr class="schedules__days--sticky">
+                <th></th>
+                <th>Nombre</th>
+                <th>Precio por unidad</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+            </tr>
+            <tr id="b" class="schedules__days--sticky">
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th id="t"></th>
+            </tr>
+        `
+        cartSection.appendChild(cartTable)
+        let b = document.getElementById("b")
+        let t = document.getElementById("t")
+        let total = 0
+        auxCart.forEach((article) => {
+            let item = document.createElement("tr")
+            total += article.subtotal
+            t.innerText = `Total: 
+            $ ${total}`
+            item.innerHTML = 
+            `
+            <th><img src="${article.image[0]}" class="imgTableCart"></th>
+            <td>${article.name}</td>
+            <td>$ ${article.price}</td>
+            <td>${article.amount}</td>
+            <td>$ ${article.subtotal}</td>
+            `
+            let parentElement = b.parentElement
+            parentElement.insertBefore(item, b) 
+        })
+        let buttonsCart = document.createElement("div")
+        buttonsCart.classList.add("d-flex", "justify-content-end")
+        buttonsCart.innerHTML = 
+        `
+            <button id="clean" class="button--format" type="button">
+                Limpiar carrito
+            </button>
+            <button id="finish" class="button--format" type="button">
+                Finalizar compra
+            </button>
+        `
+        cartSection.appendChild(buttonsCart)
+    }
+    else {
+        let cartAlert = document.createElement("p")
+        cartAlert.innerText = "El carrito está vacío!"
+        cartSection.appendChild(cartAlert)
+    }
+}
+function showCart() {
+    let cartSection = document.getElementById("cartSection")
+    let mainSection = document.getElementById("mainSection")
+    let form_search = document.getElementById("form_search")
+    cartSection.classList.toggle("hide")
+    mainSection.classList.toggle("hide")
+    form_search.classList.toggle("hide")
+}
 function detailSizes(size, id) {
     let paragraph = document.getElementById(id)
     paragraph.classList.add("font-size", "text-start")
@@ -45,7 +165,6 @@ function searchFunction(e, array) {
 }
 function orderFunction(e, array) {
     let result 
-    console.log(array)
     if (e.target.value === "mayor") {
         result = array.sort((a, b) => b.price - a.price)
         showArticles(result, "sectionArticles", "modalsSection")       
@@ -97,14 +216,12 @@ function filtersFunction(e, articles) {
         result = articles.filter(producto => e.target.value === producto.category)
         showArticles(result, "sectionArticles", "modalsSection")
     }
-    console.log(result)
     return result
 }
 function showFilterList(articles, idDiv) {
     let categories = []
     let filterCategory = document.getElementById(idDiv)
     articles.forEach(product => {
-        console.log(product.category)
         if (!categories.some(el => el === product.category)) {
             categories.push(product.category)
         }
@@ -164,7 +281,7 @@ function showFilterList(articles, idDiv) {
                             </p>
                         </figcaption>
                     </figure>
-                    <button class="figure__button" type="button">
+                    <button id="${element.id}" class="figure__button" type="button">
                         añadir al carrito
                     </button>
                 `
@@ -223,7 +340,7 @@ function showFilterList(articles, idDiv) {
                             </p>
                         </figcaption>
                     </figure>   
-                    <button class="figure__button" type="button">
+                    <button id="${element.id}" class="figure__button" type="button">
                         añadir al carrito
                     </button>   
                 `
@@ -287,14 +404,24 @@ function showFilterList(articles, idDiv) {
                 })
             }
             function mainProgram(articles) {
+                let carrito = JSON.parse(localStorage.getItem("carrito")) || []
+                articles = updateArticles(articles, carrito)
                 let aux = articles
                 let filters = document.getElementById("filterCategory")
                 let order = document.getElementById("filterOrder")
                 let search = document.getElementById("input_search")
                 let searchInput = document.getElementById("input_button_search")
+                let cartButton = document.querySelectorAll(".cartAccess")
+
+                //Uso un forEach para ir iterando las etiquetas <a> que ya estaban dentro del HTML, así de esta manera me ahorro de editar un botón completamente de cero, ya que lo tenía hecho anteriormente.
+                cartButton.forEach((button) => {
+                    button.addEventListener("click", showCart)
+                })
                 showFilterList(articles, "filterCategory")
                 showArticles(articles, "sectionArticles", "modalsSection")
-                filters.addEventListener("input", (e) => {filtersFunction(e, articles)})
+                cart(articles, carrito)
+                makeCart()
+                filters.addEventListener("input", (e) => { aux = filtersFunction(e, articles)})
                 order.addEventListener("input", (e) => orderFunction(e, aux))
                 search.addEventListener("keydown", (e) => {aux = searchFunction(e, articles)})
                 searchInput.addEventListener("click", () => {
