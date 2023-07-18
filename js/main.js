@@ -45,14 +45,17 @@ function addArticle(e, articles) {
     let aux = carrito.findIndex((el) => el.id === article.id)   
     if(aux !== -1) {
         //Cuando no hay stock
-        if (article.stock === 0) {
+        if (article.stock <= 0) {
             let emptyStock = document.getElementById(article.id)
             emptyStock.classList.remove("figure__button")
             emptyStock.classList.add("figure__button__empty")
             emptyStock.innerText = "Artículo agotado"
+            // emptyStock.removeEventListener("click", addArticle(e, articles
+            
         }   
         //Cuando hay stock
         else {
+            console.log("else")
             carrito[aux].amount ++
             carrito[aux].stock --
             carrito[aux].subtotal = Number(carrito[aux].price) * Number(carrito[aux].amount)
@@ -64,19 +67,27 @@ function addArticle(e, articles) {
     }
     //Cuando el artículo no existe en el carrtio
     else {
-        carrito.push({
-            id: article.id,
-            name: article.name,
-            price: article.price,
-            image: article.image,
-            stock: article.stock - 1,
-            amount: 1,
-            subtotal: article.price
-        })
-         //Actualiza el localStorage
-        localStorage.setItem("carrito", JSON.stringify(carrito))
-        //Actualiza el stock de los artículos que hay en la tienda
-        articles = updateArticles(articles, carrito)
+        if (article.stock === 0) {
+            let emptyStock = document.getElementById(article.id)
+            emptyStock.classList.remove("figure__button")
+            emptyStock.classList.add("figure__button__empty")
+            emptyStock.innerText = "Artículo agotado"
+        }   
+        else {
+            carrito.push({
+                id: article.id,
+                name: article.name,
+                price: article.price,
+                image: article.image,
+                stock: article.stock - 1,
+                amount: 1,
+                subtotal: article.price
+            })
+            //Actualiza el localStorage
+           localStorage.setItem("carrito", JSON.stringify(carrito))
+           //Actualiza el stock de los artículos que hay en la tienda
+           articles = updateArticles(articles, carrito)
+        }
     }
     makeCart()
 }
