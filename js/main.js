@@ -1,10 +1,43 @@
-let articlesTemp = articles()
-mainProgram(articlesTemp)
+let articlesTemp 
+mainProgram()
+//Esta funci
+// function wait(ms) {
+//     return new Promise((resolve) => setTimeout(resolve, ms))
+// }
+function messageWait() {
+    let message = "Espere por favor"
+    let i = 0
+    let sectionArticles = document.getElementById("sectionArticles")
+    sectionArticles.innerHTML =
+        `<h3>${message}</h3>`
+    let timeMark = setInterval(async () => {
+        message += "."
+        if(i === 3) {
+            i = -1
+            message = "Espere por favor"
+        }  
+        sectionArticles.innerHTML =
+        `<h3>${message}</h3>`
+        console.log("hola" + i)
+        // await wait(100)
+        i++
+    }, 250)
+}
+//Función Toastify
+function toastify(content) { 
+    Toastify({
+        text: content,
+        duration: 2000,  
+        offset: {
+            y: 30
+        }  
+    }).showToast();
+}
 //Devuelve lo almacenado en el localStorage
 function functionJSON() {
-        let a = JSON.parse(localStorage.getItem("carrito"))
-        return a
-    }
+    let a = JSON.parse(localStorage.getItem("carrito"))
+    return a
+}
 //Escucha a los botones del carrito
 function buttonFunction(id1, id2) {
     id1.addEventListener("click", cleanCart)
@@ -45,17 +78,15 @@ function addArticle(e, articles) {
     let aux = carrito.findIndex((el) => el.id === article.id)   
     if(aux !== -1) {
         //Cuando no hay stock
-        if (article.stock <= 0) {
+        if (article.stock === 0) {
             let emptyStock = document.getElementById(article.id)
             emptyStock.classList.remove("figure__button")
             emptyStock.classList.add("figure__button__empty")
             emptyStock.innerText = "Artículo agotado"
-            // emptyStock.removeEventListener("click", addArticle(e, articles
-            
         }   
         //Cuando hay stock
         else {
-            console.log("else")
+            toastify("Se agregó el artículo al carrito")
             carrito[aux].amount ++
             carrito[aux].stock --
             carrito[aux].subtotal = Number(carrito[aux].price) * Number(carrito[aux].amount)
@@ -74,6 +105,7 @@ function addArticle(e, articles) {
             emptyStock.innerText = "Artículo agotado"
         }   
         else {
+            toastify("Se agregó el artículo al carrito")
             carrito.push({
                 id: article.id,
                 name: article.name,
@@ -299,18 +331,58 @@ function showFilterList(articles, idDiv) {
          filterCategory.appendChild(option)
         })
 }
+async function mainProgram() {
+    articlesTemp = await articles()
+    // console.log(result)
+    // return result
+    startProgram(articlesTemp)
+}
+// const articles = [
+//     {id: 1, name: "Chismosa", price: 100, category: "accesorios", offer: false, gender: "s/g", stock: 25, color: "rgb(255, 255, 255)", size: "s/t", description: "Tote bag o \"chismosa\" para tus mandados o simplemente llevar tu set de ajedrez a todos lados.", image: ["../img/img-tienda/Bag.webp"], idCarousel: "section_carousel_chismosa", idModal: "art_chismosa", idModalCarousel: "carousel_chismosa", alt: "Bolsa-Club de ajedrez Bella Vista"},
+//     {id: 2, name: "Reloj", price: 650, category: "accesorios", offer: false, gender: "s/g", stock: 12, color: "rgb(255, 255, 255)", size: "s/t", description: "Reloj de cuarzo para pared con logo del club.", image: ["../img/img-tienda/Clock.webp"], idCarousel: "section_carousel_reloj", idModal: "art_reloj", idModalCarousel: "carousel_reloj", alt: "Reloj-pared-Club de ajedrez Bella vista"},
+//     {id: 3, name: "Taza", price: 50, category: "accesorios", offer: true, gender: "s/g", stock: 85, color: ["rgb(255, 255, 255)", "rgb(0, 0, 0)"], size: "s/t", description: "Taza de porcelana.", image: ["../img/img-tienda/Mug-white.webp", "../img/img-tienda/Mug-black.webp"], idCarousel: "section_carousel_taza", idModal: "art_taza", idModalCarousel: "carousel_taza", idInsert: "insert_taza", idCarouselInner: "innerTaza",  alt: "Taza-blanca-Club de ajedrez Bella Vista"},
+//     {id: 4, name: "Llavero", price: 25, category: "accesorios", offer: true, gender: "s/g", stock: 130, color: "rgb(255, 255, 255)", size: "s/t", description: "Llavero con logo.", image: ["../img/img-tienda/Keychain.webp"], idCarousel: "section_carousel_llavero", idModal: "art_llavero", idModalCarousel: "carousel_llavero", alt: "Llavero-Club de ajedrez Bella vista"},
+//     {id: 5, name: "Gorra", price: 350, category: "vestimenta", offer: false, gender: "s/g", stock: 75, color: "rgb(62, 64, 149)", size: "único", description: "Gorra estampada con el logo del club.", image: ["../img/img-tienda/Snapback-Cap-front34.webp", "../img/img-tienda/Snapback-Cap-front.webp", "../img/img-tienda/Snapback-Cap-back.webp"], idCarousel: "section_carousel_gorra", idModal: "art_gorra", idModalCarousel: "carousel_gorra", idInsert: "insert_gorra", idSize: "gorra_sizes", idCarouselInner: "innerGorra", alt: "Gorra vicera con logo"},
+//     {id: 6, name: "Remera", price: 650, category: "vestimenta", offer: false, gender: "masculino", stock: {s: 5, m: 12, l: 7, xl: 4 }, color: ["rgb(255, 255, 255)"], size: ["s", "m", "l", "xl"], description: "Para que luzcas la insignia en el verano. Remera estampada con el logo del club, 100% algodón.", image: ["../img/img-tienda/T-Shirt-Front.webp", "../img/img-tienda/T-Shirt-Back.webp"], idCarousel: "section_carousel_remera", idModal: "art_remera", idModalCarousel: "carousel_remera", idInsert: "insert_remera", idSize: "remera_sizes", idCarouselInner: "innerRemera", alt: "T-shirt-Club de ajedrez Bella Vista"},
+//     {id: 7, name: "Remera para mujer", price: 650, category: "vestimenta", offer: false, gender: "femenino", stock: {s: 5, m: 12, l: 7, xl: 4}, color: ["rgb(255, 255, 255)"], size: ["s", "m", "l", "xl"], description: "Remera con ajuste femenino estampada con el logo del club, 100% algodón.", image: ["../img/img-tienda/t-shirt-woman-front.webp"], idCarousel: "section_carousel_remera_para_mujer", idModal: "art__remera__mujer", idModalCarousel: "carousel_remera_para_mujer", idInsert: "insert_remera_mujer", idSize: "remera_mujer_sizes", idCarouselInner: "innerMujer", alt: "Remera para mujer con logo"},
+//     {id: 8, name: "Buzo c/ capucha", price: 950, category: "vestimenta", offer: false, gender: "s/g", stock: {s: 5, m: 12, l: 7, xl: 4}, color: ["rgb(255, 255, 255)"], size: ["s", "m", "l", "xl"], description: "Buzo estampado con capucha y amplio bolsillo, 100% algodón.", image: ["../img/img-tienda/Hoody.webp", "../img/img-tienda/Hoody-bck.webp", "../img/img-tienda/Hoody-yellow.webp", "../img/img-tienda/Hoody-yellow-bck.webp"], idCarousel: "section_carousel_buzo", idModal: "art_buzo", idModalCarousel: "carousel_buzo", idInsert: "insert_buzo", idSize: "buzo_sizes", idCarouselInner: "innerBuzo", alt: "Buzo/capucha-Club de ajedrez Bella Vista"}
+// ]
 function articles() {
-    const articles = [
-        {id: 1, name: "Chismosa", price: 100, category: "accesorios", offer: false, gender: "s/g", stock: 25, color: "rgb(255, 255, 255)", size: "s/t", description: "Tote bag o \"chismosa\" para tus mandados o simplemente llevar tu set de ajedrez a todos lados.", image: ["../img/img-tienda/Bag.webp"], idCarousel: "section_carousel_chismosa", idModal: "art_chismosa", idModalCarousel: "carousel_chismosa", alt: "Bolsa-Club de ajedrez Bella Vista"},
-        {id: 2, name: "Reloj", price: 650, category: "accesorios", offer: false, gender: "s/g", stock: 12, color: "rgb(255, 255, 255)", size: "s/t", description: "Reloj de cuarzo para pared con logo del club.", image: ["../img/img-tienda/Clock.webp"], idCarousel: "section_carousel_reloj", idModal: "art_reloj", idModalCarousel: "carousel_reloj", alt: "Reloj-pared-Club de ajedrez Bella vista"},
-        {id: 3, name: "Taza", price: 50, category: "accesorios", offer: true, gender: "s/g", stock: 85, color: ["rgb(255, 255, 255)", "rgb(0, 0, 0)"], size: "s/t", description: "Taza de porcelana.", image: ["../img/img-tienda/Mug-white.webp", "../img/img-tienda/Mug-black.webp"], idCarousel: "section_carousel_taza", idModal: "art_taza", idModalCarousel: "carousel_taza", idInsert: "insert_taza", idCarouselInner: "innerTaza",  alt: "Taza-blanca-Club de ajedrez Bella Vista"},
-        {id: 4, name: "Llavero", price: 25, category: "accesorios", offer: true, gender: "s/g", stock: 130, color: "rgb(255, 255, 255)", size: "s/t", description: "Llavero con logo.", image: ["../img/img-tienda/Keychain.webp"], idCarousel: "section_carousel_llavero", idModal: "art_llavero", idModalCarousel: "carousel_llavero", alt: "Llavero-Club de ajedrez Bella vista"},
-        {id: 5, name: "Gorra", price: 350, category: "vestimenta", offer: false, gender: "s/g", stock: 75, color: "rgb(62, 64, 149)", size: "único", description: "Gorra estampada con el logo del club.", image: ["../img/img-tienda/Snapback-Cap-front34.webp", "../img/img-tienda/Snapback-Cap-front.webp", "../img/img-tienda/Snapback-Cap-back.webp"], idCarousel: "section_carousel_gorra", idModal: "art_gorra", idModalCarousel: "carousel_gorra", idInsert: "insert_gorra", idSize: "gorra_sizes", idCarouselInner: "innerGorra", alt: "Gorra vicera con logo"},
-        {id: 6, name: "Remera", price: 650, category: "vestimenta", offer: false, gender: "masculino", stock: {s: 5, m: 12, l: 7, xl: 4 }, color: ["rgb(255, 255, 255)"], size: ["s", "m", "l", "xl"], description: "Para que luzcas la insignia en el verano. Remera estampada con el logo del club, 100% algodón.", image: ["../img/img-tienda/T-Shirt-Front.webp", "../img/img-tienda/T-Shirt-Back.webp"], idCarousel: "section_carousel_remera", idModal: "art_remera", idModalCarousel: "carousel_remera", idInsert: "insert_remera", idSize: "remera_sizes", idCarouselInner: "innerRemera", alt: "T-shirt-Club de ajedrez Bella Vista"},
-        {id: 7, name: "Remera para mujer", price: 650, category: "vestimenta", offer: false, gender: "femenino", stock: {s: 5, m: 12, l: 7, xl: 4}, color: ["rgb(255, 255, 255)"], size: ["s", "m", "l", "xl"], description: "Remera con ajuste femenino estampada con el logo del club, 100% algodón.", image: ["../img/img-tienda/t-shirt-woman-front.webp"], idCarousel: "section_carousel_remera_para_mujer", idModal: "art__remera__mujer", idModalCarousel: "carousel_remera_para_mujer", idInsert: "insert_remera_mujer", idSize: "remera_mujer_sizes", idCarouselInner: "innerMujer", alt: "Remera para mujer con logo"},
-        {id: 8, name: "Buzo c/ capucha", price: 950, category: "vestimenta", offer: false, gender: "s/g", stock: {s: 5, m: 12, l: 7, xl: 4}, color: ["rgb(255, 255, 255)"], size: ["s", "m", "l", "xl"], description: "Buzo estampado con capucha y amplio bolsillo, 100% algodón.", image: ["../img/img-tienda/Hoody.webp", "../img/img-tienda/Hoody-bck.webp", "../img/img-tienda/Hoody-yellow.webp", "../img/img-tienda/Hoody-yellow-bck.webp"], idCarousel: "section_carousel_buzo", idModal: "art_buzo", idModalCarousel: "carousel_buzo", idInsert: "insert_buzo", idSize: "buzo_sizes", idCarouselInner: "innerBuzo", alt: "Buzo/capucha-Club de ajedrez Bella Vista"}
-    ]
-    return articles
+    let timeMark
+    function messageWait() {
+        let message = "Espere por favor"
+        let i = 0
+        let sectionArticles = document.getElementById("sectionArticles")
+        sectionArticles.innerHTML =
+            `<h3>${message}</h3>`
+         timeMark = setInterval(async () => {
+            message += "."
+            if(i === 3) {
+                i = -1
+                message = "Espere por favor"
+            }  
+            sectionArticles.innerHTML =
+            `<h3>${message}</h3>`
+            console.log("hola" + i)
+            // await wait(100)
+            i++
+        }, 250)
+    }
+    messageWait()
+    return order = new Promise((resolve, reject) => {
+        setTimeout(() => {
+            fetch("../js/data.json")
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log(data)
+                    clearInterval(timeMark)
+                    resolve(data)
+                })
+                .catch(() => {
+                    console.log("error accediendo a data.json")
+                    reject("Error de conexión")})
+        }, 5000)
+    })
 }
 //ShowArticles es la función que muestra los artículos de la tienda, siendo el primer parámetro un array, el segundo la id en donde se ubican los artículos y el último donde se ubican los modals de cada artículo.
 function showArticles(articles, idDiv, idDivtwo) {
@@ -471,7 +543,7 @@ function showArticles(articles, idDiv, idDivtwo) {
             })
 }
 //Función principal
-function mainProgram(articles) {
+function startProgram(articles) {
     let saveLocal = functionJSON
     articles = updateArticles(articles, saveLocal)
     let aux = articles
