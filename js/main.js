@@ -1,33 +1,10 @@
 let articlesTemp 
 mainProgram()
-//Esta funci
-// function wait(ms) {
-//     return new Promise((resolve) => setTimeout(resolve, ms))
-// }
-function messageWait() {
-    let message = "Espere por favor"
-    let i = 0
-    let sectionArticles = document.getElementById("sectionArticles")
-    sectionArticles.innerHTML =
-        `<h3>${message}</h3>`
-    let timeMark = setInterval(async () => {
-        message += "."
-        if(i === 3) {
-            i = -1
-            message = "Espere por favor"
-        }  
-        sectionArticles.innerHTML =
-        `<h3>${message}</h3>`
-        console.log("hola" + i)
-        // await wait(100)
-        i++
-    }, 250)
-}
 //Función Toastify
-function toastify(content) { 
+function toastify(content) {
     Toastify({
         text: content,
-        duration: 2000,  
+        duration: 2000,
         offset: {
             y: 30
         }  
@@ -39,15 +16,33 @@ function functionJSON() {
     return a
 }
 //Escucha a los botones del carrito
-function buttonFunction(id1, id2) {
-    id1.addEventListener("click", cleanCart)
+function buttonFunction(id1, id2, articles) {
+    id1.addEventListener("click", () => cleanCart(articles))
     id2.addEventListener("click", finishCart)
-} 
+}
 //Borra el locaStorage
-function cleanCart() {
+function cleanCart(articles) {
+    let auxCarrito = functionJSON()
+    if (auxCarrito !== null && auxCarrito !== undefined) {
+        auxCarrito.forEach((el) => {
+            if (el.size !== "único" && el.size !== "s/t") {
+                let auxarticle = articles.findIndex((e) => e.id === el.id)
+                let idSelectAux = document.getElementById("talles" + articles[auxarticle].id)
+                for (const auxEl in el.amountSize) {
+                    articles[auxarticle].stock[auxEl] += el.amountSize[auxEl]
+                    idSelectAux.addEventListener("change", () => {reviewStock(articles, el.amountSize[auxEl], articles[auxarticle].id)})
+                }
+                thereIsStock(articles[auxarticle].id)
+            }
+            else {
+                let auxarticle = articles.findIndex((e) => e.id === el.id)
+                articles[auxarticle].stock += el.amount
+                thereIsStock(articles[auxarticle].id)
+            }
+        })
+    }
     localStorage.clear()
-    articlesTemp = articles()  
-    makeCart()  
+    makeCart(articles)  
 }
 //Función de finalizar la compra
 function finishCart() {
@@ -71,57 +66,152 @@ function updateArticles(articles, carrito) {
     }
     return articles
 }
+function outOfStock(articleId) {
+    let emptyStock = document.getElementById(articleId)
+    emptyStock.classList.remove("figure__button")
+    emptyStock.classList.add("figure__button__empty")
+    emptyStock.innerText = "Artículo agotado"
+}
+function thereIsStock(articleId) {
+    let isStock = document.getElementById(articleId)
+    isStock.classList.add("figure__button")
+    isStock.classList.remove("figure__button__empty")
+    isStock.innerText = "añadir al carrito"
+}
 //Agrega artículos al carrito
 function addArticle(e, articles) {
     let carrito = JSON.parse(localStorage.getItem("carrito")) || []
     let article = articles.find((el) => el.id === Number(e.target.id))
-    let aux = carrito.findIndex((el) => el.id === article.id)   
-    if(aux !== -1) {
-        //Cuando no hay stock
-        if (article.stock === 0) {
-            let emptyStock = document.getElementById(article.id)
-            emptyStock.classList.remove("figure__button")
-            emptyStock.classList.add("figure__button__empty")
-            emptyStock.innerText = "Artículo agotado"
-        }   
-        //Cuando hay stock
+    let aux = carrito.findIndex((el) => el.id === article.id) 
+    let selectSize = document.getElementById("talles" + article.id)
+    let sizeOption 
+        //El artículo existe en el carrito
+        if(aux !== -1) {
+            //El artículo tiene varios talles
+            if (article.size !== "único" && article.size !== "s/t") {
+                //Cuando no se ingresó un talle
+                if (selectSize.value === "") {
+                    toastify("¡Se te ha olvidado elegir un talle!")
+                }
+                else {
+                    //Cuando no hay stock
+                    sizeOption = selectSize.value
+                    if (article.stock[sizeOption] === 0) {
+                        outOfStock(article.id)
+                    }   
+                    //Cuando hay stock
+                    else {
+                        sizeOption = selectSize.value
+                        toastify("Se agregó el artículo al carrito")
+                        carrito[aux].amount ++
+                        if (carrito[aux].amountSize[selectSize.value]) {
+                            carrito[aux].amountSize[selectSize.value] ++
+                        }
+                        else {
+                            carrito[aux].amountSize[selectSize.value] = 1
+                        }
+                    carrito[aux].stock[sizeOption] --
+                    carrito[aux].subtotal = Number(carrito[aux].price) * Number(carrito[aux].amount)
+                    //Actualiza el localStorage
+                    localStorage.setItem("carrito", JSON.stringify(carrito))
+                    //Actualiza el stock de los artículos que hay en la tienda
+                    articles = updateArticles(articles, carrito)
+                }
+                }
+        }
+        //El artículo no tiene talles
         else {
-            toastify("Se agregó el artículo al carrito")
-            carrito[aux].amount ++
-            carrito[aux].stock --
-            carrito[aux].subtotal = Number(carrito[aux].price) * Number(carrito[aux].amount)
-            //Actualiza el localStorage
-            localStorage.setItem("carrito", JSON.stringify(carrito))
-            //Actualiza el stock de los artículos que hay en la tienda
-            articles = updateArticles(articles, carrito)
+            //Cuando no hay stock
+            if (article.stock === 0) {
+                outOfStock(article.id)
+            }   
+            //Cuando hay stock
+            else {
+                toastify("Se agregó el artículo al carrito")
+                carrito[aux].amount ++
+                carrito[aux].stock --
+                carrito[aux].subtotal = Number(carrito[aux].price) * Number(carrito[aux].amount)
+                //Actualiza el localStorage
+                localStorage.setItem("carrito", JSON.stringify(carrito))
+                //Actualiza el stock de los artículos que hay en la tienda
+                articles = updateArticles(articles, carrito)
+            }
         }
     }
     //Cuando el artículo no existe en el carrtio
     else {
-        if (article.stock === 0) {
-            let emptyStock = document.getElementById(article.id)
-            emptyStock.classList.remove("figure__button")
-            emptyStock.classList.add("figure__button__empty")
-            emptyStock.innerText = "Artículo agotado"
-        }   
+        //El artículo tiene varios talles
+        if (article.size !== "único" && article.size !== "s/t") {
+            if (selectSize.value === "") {
+                toastify("¡Se te ha olvidado elegir un talle!")
+            }
+            else {
+                if (article.stock[selectSize.value] === 0) {
+                    outOfStock(article.id)
+                }   
+                else {
+                    let auxStock = {...article.stock}
+                    let auxAmount = {[selectSize.value]: 1}
+                    sizeOption = selectSize.value
+                    auxStock[selectSize.value] -= 1  
+                    toastify("Se agregó el artículo al carrito")
+                    carrito.push({
+                        id: article.id,
+                        name: article.name,
+                        price: article.price,
+                        image: article.image,
+                        stock: auxStock,
+                        amount: 1,
+                        amountSize: auxAmount,
+                        size: article.size,
+                        subtotal: article.price
+                    })
+                    //Actualiza el localStorage
+                   localStorage.setItem("carrito", JSON.stringify(carrito))
+                   //Actualiza el stock de los artículos que hay en la tienda
+                   articles = updateArticles(articles, carrito)
+                }
+            }
+        }
+        //El artículo no tiene talles
         else {
-            toastify("Se agregó el artículo al carrito")
-            carrito.push({
-                id: article.id,
-                name: article.name,
-                price: article.price,
-                image: article.image,
-                stock: article.stock - 1,
-                amount: 1,
-                subtotal: article.price
-            })
-            //Actualiza el localStorage
-           localStorage.setItem("carrito", JSON.stringify(carrito))
-           //Actualiza el stock de los artículos que hay en la tienda
-           articles = updateArticles(articles, carrito)
+            if (article.stock === 0) {
+                outOfStock(article.id)
+            }   
+            else {
+                toastify("Se agregó el artículo al carrito")
+                carrito.push({
+                    id: article.id,
+                    name: article.name,
+                    price: article.price,
+                    image: article.image,
+                    stock: article.stock - 1,
+                    size: article.size,
+                    amount: 1,
+                    subtotal: article.price
+                })
+                //Actualiza el localStorage
+               localStorage.setItem("carrito", JSON.stringify(carrito))
+               //Actualiza el stock de los artículos que hay en la tienda
+               articles = updateArticles(articles, carrito)
+            }
         }
     }
-    makeCart()
+    if (article.size !== "único" && article.size !== "s/t") {
+        //Agrego este llamado para que cuando cambie de talle el botón se actualice a "artículo agotado" ó "añadir al carrito"
+        selectSize.addEventListener("change", () => {reviewStock(carrito, selectSize.value, article.id)})
+    }
+    makeCart(articles)  
+}
+//Función que revisa el stock para modificar el botón 
+function reviewStock(carrito, selectSize, articleId) {
+    let aux = carrito.findIndex((el) => el.id === articleId) 
+    if (carrito[aux].stock[selectSize] !== 0) {
+        thereIsStock(articleId)
+    }
+    else {
+        outOfStock(articleId)
+    }
 }
 //Función donde empieza a desarrollarse el carrito
 function cart(articles) {     
@@ -131,12 +221,14 @@ function cart(articles) {
     })
 }
 //Función que crea dinámicamente el carrito
-function makeCart() {
+function makeCart(articles) {
     let cartSection = document.getElementById("cartSection")
     let cartTable = document.createElement("table")
     cartTable.id = "idTable"
     let auxCart = functionJSON()
+    let auxAmountSize = 0
     cartSection.innerHTML = ""
+    //Si el carrito tiene artículos
     if (auxCart) {
         ShowButtonsCart("always")
         cartTable.classList.add("schedules--relative")
@@ -154,42 +246,129 @@ function makeCart() {
             <th></th>
             <th></th>
             <th></th>
-            <th></th>
+            <th id="tC"></th>
             <th id="t"></th>
             </tr>
         `
         cartSection.appendChild(cartTable)
         let b = document.getElementById("b")
         let t = document.getElementById("t")
+        let tC = document.getElementById("tC")
         let total = 0
         t.innerHTML = ""
         auxCart.forEach((article) => {
-            let item = document.createElement("tr")
-            total += article.subtotal
-            t.innerText = `Total: 
-            $ ${total}`
-            item.innerHTML = 
-            `
-            <th><img src="${article.image[0]}" class="imgTableCart"></th>
-            <td>${article.name}</td>
-            <td>$ ${article.price}</td>
-            <td>${article.amount}</td>
-            <td>$ ${article.subtotal}</td>
-            `
-            let parentElement = b.parentElement
-            parentElement.insertBefore(item, b) 
-    
+            //El artículo tiene varios talles
+            if (article.size !== "único" && article.size !== "s/t") {
+                let auxIdsize = 1
+                for (const art in article.amountSize) {
+                    auxAmountSize += Number(article.amountSize[art])
+                    let item = document.createElement("tr")
+                    total += article.subtotal
+                    t.innerText = `Total: 
+                    $ ${total}`
+                    tC.innerText = `Total:
+                    ${auxAmountSize}`
+                    item.innerHTML = 
+                    `
+                    <th><input id="${article.id}${article.name}${auxIdsize}" class="button_delete" type="button" title="elimina" value="eliminar"><img src="${article.image[0]}" class="imgTableCart"></th>
+                    <td>${article.name} Talle: ${art}</td>
+                    <td>$ ${article.price}</td>
+                    <td>${article.amountSize[art]}</td>
+                    <td>$ ${article.subtotal}</td>
+                    `
+                    let parentElement = b.parentElement
+                    parentElement.insertBefore(item, b) 
+                    deleteFuntion(articles, article.id+article.name+auxIdsize, article, art)
+                    auxIdsize ++
+                }
+            }
+            //El artículo no tiene varios talles
+            else {
+                auxAmountSize += Number(article.amount)
+                let item = document.createElement("tr")
+                    total += article.subtotal
+                    t.innerText = `Total: 
+                    $ ${total}`
+                    tC.innerText = `Total:
+                    ${auxAmountSize}`
+                    item.innerHTML = 
+                    `
+                    <th><input id="${article.id}${article.name}" class="button_delete" type="button" title="elimina" value="eliminar"><img src="${article.image[0]}" class="imgTableCart"></th>
+                    <td>${article.name}</td>
+                    <td>$ ${article.price}</td>
+                    <td>${article.amount}</td>
+                    <td>$ ${article.subtotal}</td>
+                    `
+                    let parentElement = b.parentElement
+                    parentElement.insertBefore(item, b) 
+                    deleteFuntion(articles, article.id+article.name, article)
+            }
         })
         let buttonClean = document.getElementById("clean")
         let buttonFinish = document.getElementById("finish")
-        buttonFunction(buttonClean, buttonFinish)
-        
+        buttonFunction(buttonClean, buttonFinish, articles)
     }
+    //Si el carrito no tiene artículos
     else {
         let cartAlert = document.createElement("p")
         ShowButtonsCart("close")
         cartAlert.innerText = "El carrito está vacío!"
         cartSection.appendChild(cartAlert)
+    }
+}
+function deleteFuntion(articles, idDeleteButton, article, articleAmountSize) {
+    let deleteButton = document.getElementById(idDeleteButton)
+    deleteButton.addEventListener("click", () => {
+        let carrito = functionJSON()
+        //El artículo tiene varios talles
+        if (article.size !== "único" && article.size !== "s/t") {
+            // let newCarrito = carrito.filter((el) => el.amountSize !== articleAmountSize && el.id !== article.id)
+            // let newCarrito
+            let aux = carrito.findIndex((el) => el.id === article.id)
+            delete carrito[aux].amountSize[articleAmountSize]
+            // newCarrito = carrito
+            //Reviso si la propiedad del objeto quedó vacía, si no el makeCart() armará el carrito sin ningún artículo
+            if (Object.getOwnPropertyNames(carrito[aux].amountSize).length === 0) {
+                console.log("entra en el clear")
+                carrito.splice(aux, 1)
+            }
+            localStorage.setItem("carrito", JSON.stringify(carrito))  
+            if (carrito.length === 0) {
+                localStorage.clear()
+            }
+            updateArticlesAfterDelete(articles, article, articleAmountSize)
+            makeCart(articles)
+        }
+        //El artículo no tiene varios talles
+        else {
+            let newCarrito = carrito.filter((el) => el.id !== article.id)
+            localStorage.setItem("carrito", JSON.stringify(newCarrito))  
+            if (newCarrito.length === 0) {
+                localStorage.clear()
+            }
+            updateArticlesAfterDelete(articles, article)
+            makeCart(articles)
+        }
+    })
+}
+function updateArticlesAfterDelete(articles, article, articleAmountSize) {
+    //El artículo tiene varios talles
+    if (article.size !== "único" && article.size !== "s/t") {
+        let idSelect = document.getElementById("talles" + article.id)
+        let aux = articles.findIndex((el) => el.id === article.id)
+        articles[aux].stock[articleAmountSize] += article.amountSize[articleAmountSize]
+        //como se reintegra el stock al estado anterior cambio la situacion del botón añadir al carrito
+        if (idSelect.value === articleAmountSize) {
+            thereIsStock(article.id)
+        }
+        return articles
+    }
+    //El artículo no tiene varios talles
+    else {  
+        let aux = articles.findIndex((el) => el.id === article.id)
+        articles[aux].stock += article.amount
+        //como se reintegra el stock al estado anterior cambio la situacion del botón añadir al carrito
+            thereIsStock(article.id)
     }
 }
 //Esconde o muestra el carrito
@@ -215,25 +394,32 @@ function ShowButtonsCart(option) {
     }
 }
 //Crea una lista de talles  
-function detailSizes(size, id) {
-    let paragraph = document.getElementById(id)
+function detailSizes(size, idSize, id) {
+    let paragraph = document.getElementById(idSize)
     paragraph.classList.add("font-size", "text-start")
     let options = document.createElement("select")
-    options.id = "talles"
+    options.id = "talles" + id
     paragraph.innerHTML = 
     `
         Talle: 
     `
     if (size !== "único")
     {
+        let optn = document.createElement("option")
+        optn.setAttribute("value", "")
+        optn.innerHTML = 
+        `
+            Elija un talle...
+        `
+        options.appendChild(optn)
         for(let i = 0; i <size.length; i++) {
             let op = document.createElement("option")
-            op.setAttribute("value", "${size[i]}")
-            op.innerHTML = 
-            `
-                    ${size[i]}
-            `
-            options.appendChild(op)
+                op.setAttribute("value", size[i])
+                op.innerHTML = 
+                `
+                        ${size[i]}
+                `
+                options.appendChild(op)
         }
         paragraph.appendChild(options)
     }
@@ -248,6 +434,8 @@ function searchFunctionInside(e, array) {
     let result
     result = array.filter(producto => producto.name.toLowerCase().includes(e.toLowerCase()) || producto.category.toLowerCase().includes(e.toLowerCase()))
     showArticles(result, "sectionArticles", "modalsSection")
+    cart(array)
+    makeCart(array)
     return result
 }
 function searchFunction(e, array) {
@@ -256,6 +444,8 @@ function searchFunction(e, array) {
         e.preventDefault()
         result = searchFunctionInside(e.target.value, array)
         showArticles(result, "sectionArticles", "modalsSection")
+        cart(array)
+        makeCart(array)
       }
       return result
 }
@@ -263,11 +453,15 @@ function orderFunction(e, array) {
     let result 
     if (e.target.value === "mayor") {
         result = array.sort((a, b) => b.price - a.price)
-        showArticles(result, "sectionArticles", "modalsSection")       
+        showArticles(result, "sectionArticles", "modalsSection")     
+        cart(array)
+        makeCart(array)
     }
     else if (e.target.value === "menor") {
         result = array.sort((a, b) => a.price - b.price)
-        showArticles(result, "sectionArticles", "modalsSection")       
+        showArticles(result, "sectionArticles", "modalsSection")
+        cart(array)
+        makeCart(array)
     }
     else if (e.target.value === "a-z") {
         result = array.sort(function(a, b) {
@@ -284,6 +478,8 @@ function orderFunction(e, array) {
             }
             })
             showArticles(result, "sectionArticles", "modalsSection")
+            cart(array)
+            makeCart(array)
     }
     else if (e.target.value === "z-a") {
         result = array.sort(function(a, b) {
@@ -300,6 +496,8 @@ function orderFunction(e, array) {
             }
             })
             showArticles(result, "sectionArticles", "modalsSection")
+            cart(array)
+            makeCart(array)
     }
 }
 function filtersFunction(e, articles) {
@@ -307,10 +505,14 @@ function filtersFunction(e, articles) {
     if (e.target.value === "") {
         result = articles
         showArticles(articles, "sectionArticles", "modalsSection")
+        cart(articles)
+        makeCart(articles)
     }
     else {
         result = articles.filter(producto => e.target.value === producto.category)
         showArticles(result, "sectionArticles", "modalsSection")
+        cart(articles)
+        makeCart(articles)  
     }
     return result
 }
@@ -333,24 +535,12 @@ function showFilterList(articles, idDiv) {
 }
 async function mainProgram() {
     articlesTemp = await articles()
-    // console.log(result)
-    // return result
     startProgram(articlesTemp)
 }
-// const articles = [
-//     {id: 1, name: "Chismosa", price: 100, category: "accesorios", offer: false, gender: "s/g", stock: 25, color: "rgb(255, 255, 255)", size: "s/t", description: "Tote bag o \"chismosa\" para tus mandados o simplemente llevar tu set de ajedrez a todos lados.", image: ["../img/img-tienda/Bag.webp"], idCarousel: "section_carousel_chismosa", idModal: "art_chismosa", idModalCarousel: "carousel_chismosa", alt: "Bolsa-Club de ajedrez Bella Vista"},
-//     {id: 2, name: "Reloj", price: 650, category: "accesorios", offer: false, gender: "s/g", stock: 12, color: "rgb(255, 255, 255)", size: "s/t", description: "Reloj de cuarzo para pared con logo del club.", image: ["../img/img-tienda/Clock.webp"], idCarousel: "section_carousel_reloj", idModal: "art_reloj", idModalCarousel: "carousel_reloj", alt: "Reloj-pared-Club de ajedrez Bella vista"},
-//     {id: 3, name: "Taza", price: 50, category: "accesorios", offer: true, gender: "s/g", stock: 85, color: ["rgb(255, 255, 255)", "rgb(0, 0, 0)"], size: "s/t", description: "Taza de porcelana.", image: ["../img/img-tienda/Mug-white.webp", "../img/img-tienda/Mug-black.webp"], idCarousel: "section_carousel_taza", idModal: "art_taza", idModalCarousel: "carousel_taza", idInsert: "insert_taza", idCarouselInner: "innerTaza",  alt: "Taza-blanca-Club de ajedrez Bella Vista"},
-//     {id: 4, name: "Llavero", price: 25, category: "accesorios", offer: true, gender: "s/g", stock: 130, color: "rgb(255, 255, 255)", size: "s/t", description: "Llavero con logo.", image: ["../img/img-tienda/Keychain.webp"], idCarousel: "section_carousel_llavero", idModal: "art_llavero", idModalCarousel: "carousel_llavero", alt: "Llavero-Club de ajedrez Bella vista"},
-//     {id: 5, name: "Gorra", price: 350, category: "vestimenta", offer: false, gender: "s/g", stock: 75, color: "rgb(62, 64, 149)", size: "único", description: "Gorra estampada con el logo del club.", image: ["../img/img-tienda/Snapback-Cap-front34.webp", "../img/img-tienda/Snapback-Cap-front.webp", "../img/img-tienda/Snapback-Cap-back.webp"], idCarousel: "section_carousel_gorra", idModal: "art_gorra", idModalCarousel: "carousel_gorra", idInsert: "insert_gorra", idSize: "gorra_sizes", idCarouselInner: "innerGorra", alt: "Gorra vicera con logo"},
-//     {id: 6, name: "Remera", price: 650, category: "vestimenta", offer: false, gender: "masculino", stock: {s: 5, m: 12, l: 7, xl: 4 }, color: ["rgb(255, 255, 255)"], size: ["s", "m", "l", "xl"], description: "Para que luzcas la insignia en el verano. Remera estampada con el logo del club, 100% algodón.", image: ["../img/img-tienda/T-Shirt-Front.webp", "../img/img-tienda/T-Shirt-Back.webp"], idCarousel: "section_carousel_remera", idModal: "art_remera", idModalCarousel: "carousel_remera", idInsert: "insert_remera", idSize: "remera_sizes", idCarouselInner: "innerRemera", alt: "T-shirt-Club de ajedrez Bella Vista"},
-//     {id: 7, name: "Remera para mujer", price: 650, category: "vestimenta", offer: false, gender: "femenino", stock: {s: 5, m: 12, l: 7, xl: 4}, color: ["rgb(255, 255, 255)"], size: ["s", "m", "l", "xl"], description: "Remera con ajuste femenino estampada con el logo del club, 100% algodón.", image: ["../img/img-tienda/t-shirt-woman-front.webp"], idCarousel: "section_carousel_remera_para_mujer", idModal: "art__remera__mujer", idModalCarousel: "carousel_remera_para_mujer", idInsert: "insert_remera_mujer", idSize: "remera_mujer_sizes", idCarouselInner: "innerMujer", alt: "Remera para mujer con logo"},
-//     {id: 8, name: "Buzo c/ capucha", price: 950, category: "vestimenta", offer: false, gender: "s/g", stock: {s: 5, m: 12, l: 7, xl: 4}, color: ["rgb(255, 255, 255)"], size: ["s", "m", "l", "xl"], description: "Buzo estampado con capucha y amplio bolsillo, 100% algodón.", image: ["../img/img-tienda/Hoody.webp", "../img/img-tienda/Hoody-bck.webp", "../img/img-tienda/Hoody-yellow.webp", "../img/img-tienda/Hoody-yellow-bck.webp"], idCarousel: "section_carousel_buzo", idModal: "art_buzo", idModalCarousel: "carousel_buzo", idInsert: "insert_buzo", idSize: "buzo_sizes", idCarouselInner: "innerBuzo", alt: "Buzo/capucha-Club de ajedrez Bella Vista"}
-// ]
 function articles() {
     let timeMark
-    function messageWait() {
-        let message = "Espere por favor"
+    function messageWait(messageOption) {
+        let message = messageOption
         let i = 0
         let sectionArticles = document.getElementById("sectionArticles")
         sectionArticles.innerHTML =
@@ -363,184 +553,217 @@ function articles() {
             }  
             sectionArticles.innerHTML =
             `<h3>${message}</h3>`
-            console.log("hola" + i)
-            // await wait(100)
             i++
         }, 250)
     }
-    messageWait()
+    messageWait("Espere por favor")
     return order = new Promise((resolve, reject) => {
         setTimeout(() => {
             fetch("../js/data.json")
                 .then((response) => response.json())
                 .then((data) => {
-                    console.log(data)
                     clearInterval(timeMark)
                     resolve(data)
                 })
                 .catch(() => {
-                    console.log("error accediendo a data.json")
-                    reject("Error de conexión")})
-        }, 5000)
+                    reject("Error de conexión")
+                    window.location.href = "../pages/404.html"
+                })
+        }, 2500)
     })
 }
-//ShowArticles es la función que muestra los artículos de la tienda, siendo el primer parámetro un array, el segundo la id en donde se ubican los artículos y el último donde se ubican los modals de cada artículo.
+//Agrego esta función en caso de que el stock sea cero 
+//(como en este caso no puedo usar el método put para modificar el .json 
+//nunca será necesario a no ser que modifique "a mano" el stock)
+function firstReviewStock(element) {
+    //El id del select de los talles de los productos es "talles+artículo.id"
+    let AuxIdSelect = "talles" + element.id
+                let selectSizeListen = document.getElementById(AuxIdSelect)
+                selectSizeListen.addEventListener("change", (e) => {
+                    if (element.stock[e.target.value] === 0) {
+                        outOfStock(element.id)
+                    } 
+                    else {
+                        thereIsStock(element.id)
+                    }
+                })
+} 
+//ShowArticles es la función que muestra los artículos de la tienda, 
+//siendo el primer parámetro un array que los contiene, el segundo la id en donde se ubican 
+//y el último donde se ubican sus modals.
 function showArticles(articles, idDiv, idDivtwo) {
     let sectionArticles = document.getElementById(idDiv)
     let modalPlace = document.getElementById(idDivtwo)
     modalPlace.innerHTML = ""
     sectionArticles.innerHTML = ""
-    articles.forEach(element => {
-        let card = document.createElement("div")
-        let modals = document.createElement("div")
-        //En el caso que el artículo tenga solo una imágen
-        if (element.image.length === 1) {
-            card.classList.add("d-flex", "flex-column", "align-items-center", "col-xs-12", "col-sm-6", "col-lg-3", "mb-sm-3", "mb-4")
-            card.innerHTML = 
-            `
-                <figure>
-                    <!-- Carrusel de Bootstrap -->
-                    <div id="${element.idCarousel}" class="carousel slide carousel-fade">
-                        <div class="carousel-inner lupa">
-                            <div class="d-flex justify-content-center carousel-item active">
-                                <img src=${element.image} data-bs-toggle="modal" data-bs-target= "#${element.idModal}" alt="${element.alt}">
+    if (articles.length === 0) {
+        sectionArticles.innerHTML = 
+        `
+            <h3>¡Oops, lo sentimos, no hemos encontrado nada!
+        `
+    }
+    else {
+        articles.forEach(element => {
+            let card = document.createElement("div")
+            let modals = document.createElement("div")
+            //En el caso que el artículo tenga solo una imágen
+            if (element.image.length === 1) {
+                card.classList.add("d-flex", "flex-column", "align-items-center", "col-xs-12", "col-sm-6", "col-lg-3", "mb-sm-3", "mb-4")
+                card.innerHTML = 
+                `
+                    <figure>
+                        <!-- Carrusel de Bootstrap -->
+                        <div id="${element.idCarousel}" class="carousel slide carousel-fade">
+                            <div class="carousel-inner lupa">
+                                <div class="d-flex justify-content-center carousel-item active">
+                                    <img src=${element.image[0]} data-bs-toggle="modal" data-bs-target= "#${element.idModal}" alt="${element.alt}">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <figcaption>${element.name}
-                        <p>
-                            ${element.description}
-                        </p>
-                        <div id="${element.idSize}">
-                        </div>
-                        <p class="text-center text__bold">
-                            $ ${element.price}
-                        </p>
-                    </figcaption>
-                </figure>
-                <button id="${element.id}" class="figure__button" type="button">
-                    añadir al carrito
-                </button>
-            `
-            sectionArticles.appendChild(card)
-            if (element.size !== "s/t") {
-                detailSizes(element.size, element.idSize)
-            }
-            modals.innerHTML = 
-            `
-            <div class="modal fade" id="${element.idModal}" tabindex="-1" aria-hidden="true">
-            <div class="modal-xl modal-dialog modal-dialog-centered">
-                <div class="modal-content rounded-0">
-                <div class="modal-header border-0">
-                    <button type="button" class="btn-close button__close-color" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="carousel-inner">
-                        <div class="d-flex justify-content-center carousel-item active">
-                            <img src="${element.image}" class="img-fluid" alt="${element.alt}">
-                        </div>
-                    </div>
-                </div>
-                </div>
-            </div>
-            </div>
-            `
-            modalPlace.appendChild(modals)
-        }
-        //En el caso que el artículo tenga más de una imágen
-        else if (element.image.length > 1) {
-            card.classList.add("d-flex", "flex-column", "align-items-center", "col-xs-12", "col-sm-6", "col-lg-3", "mb-sm-3", "mb-4")
-            card.innerHTML = 
-            `   
-                <figure>
-                    <!-- Carrusel de Bootstrap -->
-                    <div id="${element.idCarousel}" class="carousel slide carousel-fade">
-                        <div id="${element.idInsert}" class="carousel-inner lupa">
-                            <div class="d-flex justify-content-center carousel-item active">
-                                <img src= "${element.image[0]}" data-bs-toggle="modal" data-bs-target="#${element.idModal}" alt="Taza-blanca-Club de ajedrez Bella Vista">
+                        <figcaption>${element.name}
+                            <p>
+                                ${element.description}
+                            </p>
+                            <div id="${element.idSize}">
                             </div>
-                        </div>
-                        <button class="carousel-control-prev carousel__button" type="button" data-bs-target="#${element.idCarousel}" data-bs-slide="prev">
-                            <img src="../css/img/arrowlft.svg" class="border-0 carousel-control-prev-icon" aria-hidden="true" alt="flecha izquierda">
-                        </button>
-                        <button class="carousel-control-next carousel__button" type="button" data-bs-target="#${element.idCarousel}" data-bs-slide="next">
-                            <img src="../css/img/arrowrgth.svg" class="border-0 carousel-control-next-icon" aria-hidden="true" alt="flecha derecha"> 
-                        </button>
-                    </div>
-                    <figcaption>${element.name}
-                        <p>
-                            ${element.description}
-                        </p>
-                        <div id="${element.idSize}">
-                        </div>
-                        <p class="text-center text__bold">
-                            $ ${element.price}
-                        </p>
-                    </figcaption>
-                </figure>   
-                <button id="${element.id}" class="figure__button" type="button">
-                    añadir al carrito
-                </button>   
-            `
-            sectionArticles.appendChild(card)
-            for (let i = 1; i < element.image.length; i++) {
-                let imagesCarrousel = document.createElement("div")
-                imagesCarrousel.classList.add("d-flex", "justify-content-center", "carousel-item")
-                imagesCarrousel.innerHTML = 
+                            <p class="text-center text__bold">
+                                $ ${element.price}
+                            </p>
+                        </figcaption>
+                    </figure>
+                    <button id="${element.id}" class="figure__button" type="button">
+                        añadir al carrito
+                    </button>
                 `
-                
-                <img src= "${element.image[i]}">  
-                
+                sectionArticles.appendChild(card)
+                //Agrego esta condición en caso de que el stock sea cero 
+                //(como en este caso no puedo usar el método put para modificar el .json 
+                //nunca será necesario a no ser que modifique "a mano" el stock)
+                if (element.stock === 0 && (element.size === "único" || element.size === "s/t")) {
+                    outOfStock(element.id)
+                }
+                //El artículo tiene varios talles
+                if (element.size !== "s/t" && element.size !== "único") {
+                    detailSizes(element.size, element.idSize, element.id)
+                    firstReviewStock(element)
+                }
+                modals.innerHTML = 
                 `
-                let place = document.getElementById(element.idInsert)
-                place.appendChild(imagesCarrousel)
-            }
-            //Para mostrar una lista de talles
-            if (element.size !== "s/t") {
-                detailSizes(element.size, element.idSize)
-            }
-            modals.innerHTML = 
-            `
                 <div class="modal fade" id="${element.idModal}" tabindex="-1" aria-hidden="true">
-                    <div class="modal-xl modal-dialog modal-dialog-centered">
-                        <div class="modal-content rounded-0">
-                            <div class="modal-header border-0">
-                                <button type="button" class="btn-close button__close-color" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="modal-xl modal-dialog modal-dialog-centered">
+                    <div class="modal-content rounded-0">
+                    <div class="modal-header border-0">
+                        <button type="button" class="btn-close button__close-color" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="carousel-inner">
+                            <div class="d-flex justify-content-center carousel-item active">
+                                <img src="${element.image[0]}" class="img-fluid" alt="${element.alt}">
                             </div>
-                            <div class="modal-body">
-                                <div id="${element.idModalCarousel}" class="carousel slide carousel-fade">
-                                    <div id="${element.idCarouselInner}" class="carousel-inner">
-                                        <div class="d-flex justify-content-center carousel-item active">
-                                            <img src="${element.image[0]}" class="img-fluid" alt="${element.alt}">
+                        </div>
+                    </div>
+                    </div>
+                </div>
+                </div>
+                `
+                modalPlace.appendChild(modals)
+            }
+            //En el caso que el artículo tenga más de una imágen
+            else if (element.image.length > 1) {
+                card.classList.add("d-flex", "flex-column", "align-items-center", "col-xs-12", "col-sm-6", "col-lg-3", "mb-sm-3", "mb-4")
+                card.innerHTML = 
+                `   
+                    <figure>
+                        <!-- Carrusel de Bootstrap -->
+                        <div id="${element.idCarousel}" class="carousel slide carousel-fade">
+                            <div id="${element.idInsert}" class="carousel-inner lupa">
+                                <div class="d-flex justify-content-center carousel-item active">
+                                    <img src= "${element.image[0]}" data-bs-toggle="modal" data-bs-target="#${element.idModal}" alt="Taza-blanca-Club de ajedrez Bella Vista">
+                                </div>
+                            </div>
+                            <button class="carousel-control-prev carousel__button" type="button" data-bs-target="#${element.idCarousel}" data-bs-slide="prev">
+                                <img src="../css/img/arrowlft.svg" class="border-0 carousel-control-prev-icon" aria-hidden="true" alt="flecha izquierda">
+                            </button>
+                            <button class="carousel-control-next carousel__button" type="button" data-bs-target="#${element.idCarousel}" data-bs-slide="next">
+                                <img src="../css/img/arrowrgth.svg" class="border-0 carousel-control-next-icon" aria-hidden="true" alt="flecha derecha"> 
+                            </button>
+                        </div>
+                        <figcaption>${element.name}
+                            <p>
+                                ${element.description}
+                            </p>
+                            <div id="${element.idSize}">
+                            </div>
+                            <p class="text-center text__bold">
+                                $ ${element.price}
+                            </p>
+                        </figcaption>
+                    </figure>   
+                    <button id="${element.id}" class="figure__button" type="button">
+                        añadir al carrito
+                    </button>   
+                `
+                sectionArticles.appendChild(card)
+                for (let i = 1; i < element.image.length; i++) {
+                    let imagesCarrousel = document.createElement("div")
+                    imagesCarrousel.classList.add("d-flex", "justify-content-center", "carousel-item")
+                    imagesCarrousel.innerHTML = 
+                    `
+                    
+                    <img src= "${element.image[i]}">  
+                    
+                    `
+                    let place = document.getElementById(element.idInsert)
+                    place.appendChild(imagesCarrousel)
+                }
+                //Para mostrar una lista de talles
+                if (element.size !== "s/t" && element.size !== "único") {
+                    detailSizes(element.size, element.idSize, element.id)
+                    firstReviewStock(element)
+                }
+                modals.innerHTML = 
+                `
+                    <div class="modal fade" id="${element.idModal}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-xl modal-dialog modal-dialog-centered">
+                            <div class="modal-content rounded-0">
+                                <div class="modal-header border-0">
+                                    <button type="button" class="btn-close button__close-color" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div id="${element.idModalCarousel}" class="carousel slide carousel-fade">
+                                        <div id="${element.idCarouselInner}" class="carousel-inner">
+                                            <div class="d-flex justify-content-center carousel-item active">
+                                                <img src="${element.image[0]}" class="img-fluid" alt="${element.alt}">
+                                            </div>
                                         </div>
+                                        <button class="carousel-control-prev carousel__button" type="button" data-bs-target="#${element.idModalCarousel}" data-bs-slide="prev">
+                                            <img src="../css/img/arrowlft.svg" class="border-0 carousel-control-prev-icon" aria-hidden="true" alt="flecha izquierda">
+                                        </button>
+                                        <button class="carousel-control-next carousel__button" type="button" data-bs-target="#${element.idModalCarousel}" data-bs-slide="next">
+                                            <img src="../css/img/arrowrgth.svg" class="border-0 carousel-control-next-icon" aria-hidden="true" alt="flecha derecha"> 
+                                        </button>
                                     </div>
-                                    <button class="carousel-control-prev carousel__button" type="button" data-bs-target="#${element.idModalCarousel}" data-bs-slide="prev">
-                                        <img src="../css/img/arrowlft.svg" class="border-0 carousel-control-prev-icon" aria-hidden="true" alt="flecha izquierda">
-                                    </button>
-                                    <button class="carousel-control-next carousel__button" type="button" data-bs-target="#${element.idModalCarousel}" data-bs-slide="next">
-                                        <img src="../css/img/arrowrgth.svg" class="border-0 carousel-control-next-icon" aria-hidden="true" alt="flecha derecha"> 
-                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
-            `
-            modalPlace.appendChild(modals)
-            for(let i = 1; i < element.image.length; i++) {
-                let imagesCarrousel = document.createElement("div")
-                imagesCarrousel.classList.add("d-flex", "justify-content-center", "carousel-item")
-                imagesCarrousel.innerHTML = 
                 `
-                
-                    <img src= "${element.image[i]}" class="img-fluid" alt="">  
-                
-                `
-                let place = document.getElementById(element.idCarouselInner)
-                place.appendChild(imagesCarrousel) 
+                modalPlace.appendChild(modals)
+                for(let i = 1; i < element.image.length; i++) {
+                    let imagesCarrousel = document.createElement("div")
+                    imagesCarrousel.classList.add("d-flex", "justify-content-center", "carousel-item")
+                    imagesCarrousel.innerHTML = 
+                    `
+                    
+                        <img src= "${element.image[i]}" class="img-fluid" alt="">  
+                    
+                    `
+                    let place = document.getElementById(element.idCarouselInner)
+                    place.appendChild(imagesCarrousel) 
+                }
             }
-        }
-            })
+        })
+    }
 }
 //Función principal
 function startProgram(articles) {
@@ -559,9 +782,9 @@ function startProgram(articles) {
     showFilterList(articles, "filterCategory")
     showArticles(articles, "sectionArticles", "modalsSection")
     cart(articles)
-    makeCart()
-    //Optp por usar una variable alternativa para que se pueda ordenar lo que se filtró o se buscó
-    filters.addEventListener("input", (e) => { aux = filtersFunction(e, articles)})
+    makeCart(articles)
+    //Opto por usar una variable alternativa para que se pueda ordenar lo que se filtró o se buscó
+    filters.addEventListener("input", (e) => { filtersFunction(e, aux)})
     order.addEventListener("input", (e) => orderFunction(e, aux))
     search.addEventListener("keydown", (e) => {aux = searchFunction(e, articles)})
     searchInput.addEventListener("click", () => {
