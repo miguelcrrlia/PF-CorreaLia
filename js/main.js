@@ -1,4 +1,3 @@
-let articlesTemp 
 mainProgram()
 //Función Toastify
 function toastify(content) {
@@ -32,7 +31,7 @@ function functionJSON() {
 //Escucha a los botones del carrito
 function buttonFunction(id1, id2, articles) {
     id1.addEventListener("click", () => cleanCart(articles))
-    id2.addEventListener("click", finishCart)
+    id2.addEventListener("click", () => finishCart(articles))
 }
 //Borra el locaStorage
 function cleanCart(articles) {
@@ -47,7 +46,7 @@ function cleanCart(articles) {
                     //Agrego este condicional, ya que si se realiza alguna búsqueda o filtro 
                     // puede no estar en el DOM el artículo que sí está en el carrito 
                     if (idSelectAux) {
-                        idSelectAux.addEventListener("change", () => {reviewStock(articles, el.amountSize[auxEl], articles[auxarticle].id)})
+                        idSelectAux.addEventListener("change", () => {reviewStock(articles, auxEl, articles[auxarticle].id)})
                     }
                 }
                 thereIsStock(articles[auxarticle].id)
@@ -63,13 +62,13 @@ function cleanCart(articles) {
     makeCart(articles)  
 }
 //Función de finalizar la compra
-function finishCart() {
+function finishCart(articles) {
     let cartSection = document.getElementById("cartSection")
     let message = document.createElement("p")
     cartSection.innerHTML = `<h3>¡Compra finalizada!</h3>`
     cartSection.appendChild(message)
     ShowButtonsCart("close")
-    articlesTemp = JSON.parse(localStorage.getItem("carrito"))
+    articles = JSON.parse(localStorage.getItem("carrito"))
     localStorage.clear()
 }
 //Actualiza el stock corriente con respecto al carrito
@@ -302,7 +301,7 @@ function makeCart(articles) {
                     `
                     let parentElement = b.parentElement
                     parentElement.insertBefore(item, b) 
-                    deleteFuntion(articlesTemp, article.id+article.name+auxIdsize, article, art)
+                    deleteFuntion(articles, article.id+article.name+auxIdsize, article, art)
                     auxIdsize ++
                 }
             }
@@ -544,6 +543,7 @@ function showFilterList(articles, idDiv) {
         })
 }
 async function mainProgram() {
+    let articlesTemp 
     articlesTemp = await articles()
     startProgram(articlesTemp)
 }
