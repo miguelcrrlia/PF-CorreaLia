@@ -3773,6 +3773,6 @@ figure img, figure aside section a img, aside section a figure img {
   background-color: transparent;
   color: transparent;
 }
-/* .cell_delete {
-  border: 0;
-} */
+.sizePadding {
+  padding-top: 10px;
+}

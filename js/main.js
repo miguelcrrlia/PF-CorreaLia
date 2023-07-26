@@ -2,13 +2,27 @@ let articlesTemp
 mainProgram()
 //Función Toastify
 function toastify(content) {
-    Toastify({
+    if (content === "¡Se te ha olvidado elegir un talle!") {
+       Toastify({ 
         text: content,
         duration: 2000,
         offset: {
             y: 30
-        }  
-    }).showToast();
+        },
+        style: {
+            background: "rgb(255, 242, 18)",
+            color: "rgb(62, 64, 149)"
+          }  }).showToast()
+    }
+    else {
+        Toastify({
+            text: content,
+            duration: 2000,
+            offset: {
+                y: 30
+            },
+        }).showToast()
+    }
 }
 //Devuelve lo almacenado en el localStorage
 function functionJSON() {
@@ -30,7 +44,11 @@ function cleanCart(articles) {
                 let idSelectAux = document.getElementById("talles" + articles[auxarticle].id)
                 for (const auxEl in el.amountSize) {
                     articles[auxarticle].stock[auxEl] += el.amountSize[auxEl]
-                    idSelectAux.addEventListener("change", () => {reviewStock(articles, el.amountSize[auxEl], articles[auxarticle].id)})
+                    //Agrego este condicional, ya que si se realiza alguna búsqueda o filtro 
+                    // puede no estar en el DOM el artículo que sí está en el carrito 
+                    if (idSelectAux) {
+                        idSelectAux.addEventListener("change", () => {reviewStock(articles, el.amountSize[auxEl], articles[auxarticle].id)})
+                    }
                 }
                 thereIsStock(articles[auxarticle].id)
             }
@@ -66,17 +84,23 @@ function updateArticles(articles, carrito) {
     }
     return articles
 }
+//Cambia la clase del botón cuando no hay stock
 function outOfStock(articleId) {
     let emptyStock = document.getElementById(articleId)
     emptyStock.classList.remove("figure__button")
     emptyStock.classList.add("figure__button__empty")
     emptyStock.innerText = "Artículo agotado"
 }
+//Cambia la clase del botón cuando hay stock
 function thereIsStock(articleId) {
     let isStock = document.getElementById(articleId)
-    isStock.classList.add("figure__button")
-    isStock.classList.remove("figure__button__empty")
-    isStock.innerText = "añadir al carrito"
+    //Agrego este condicional, ya que si se realiza alguna búsqueda o filtro 
+    // puede no estar en el DOM el artículo que sí está en el carrito 
+    if (isStock) {
+        isStock.classList.add("figure__button")
+        isStock.classList.remove("figure__button__empty")
+        isStock.innerText = "añadir al carrito"
+    }
 }
 //Agrega artículos al carrito
 function addArticle(e, articles) {
@@ -91,12 +115,12 @@ function addArticle(e, articles) {
             if (article.size !== "único" && article.size !== "s/t") {
                 //Cuando no se ingresó un talle
                 if (selectSize.value === "") {
-                    toastify("¡Se te ha olvidado elegir un talle!")
+                    toastify("¡Se te ha olvidado elegir un talle!", "true")
                 }
                 else {
                     //Cuando no hay stock
                     sizeOption = selectSize.value
-                    if (article.stock[sizeOption] === 0) {
+                    if (article.stock[sizeOption] <= 0) {
                         outOfStock(article.id)
                     }   
                     //Cuando hay stock
@@ -110,19 +134,19 @@ function addArticle(e, articles) {
                         else {
                             carrito[aux].amountSize[selectSize.value] = 1
                         }
-                    carrito[aux].stock[sizeOption] --
-                    carrito[aux].subtotal = Number(carrito[aux].price) * Number(carrito[aux].amount)
-                    //Actualiza el localStorage
-                    localStorage.setItem("carrito", JSON.stringify(carrito))
-                    //Actualiza el stock de los artículos que hay en la tienda
-                    articles = updateArticles(articles, carrito)
+                        carrito[aux].stock[sizeOption] --
+                        carrito[aux].subtotal = Number(carrito[aux].price) * Number(carrito[aux].amount)
+                        //Actualiza el localStorage
+                        localStorage.setItem("carrito", JSON.stringify(carrito))
+                        //Actualiza el stock de los artículos que hay en la tienda
+                        articles = updateArticles(articles, carrito)
                 }
                 }
         }
         //El artículo no tiene talles
         else {
             //Cuando no hay stock
-            if (article.stock === 0) {
+            if (article.stock <= 0) {
                 outOfStock(article.id)
             }   
             //Cuando hay stock
@@ -221,7 +245,7 @@ function cart(articles) {
     })
 }
 //Función que crea dinámicamente el carrito
-function makeCart(articles) {
+function makeCart(articles) {   
     let cartSection = document.getElementById("cartSection")
     let cartTable = document.createElement("table")
     cartTable.id = "idTable"
@@ -278,7 +302,7 @@ function makeCart(articles) {
                     `
                     let parentElement = b.parentElement
                     parentElement.insertBefore(item, b) 
-                    deleteFuntion(articles, article.id+article.name+auxIdsize, article, art)
+                    deleteFuntion(articlesTemp, article.id+article.name+auxIdsize, article, art)
                     auxIdsize ++
                 }
             }
@@ -322,16 +346,14 @@ function deleteFuntion(articles, idDeleteButton, article, articleAmountSize) {
         let carrito = functionJSON()
         //El artículo tiene varios talles
         if (article.size !== "único" && article.size !== "s/t") {
-            // let newCarrito = carrito.filter((el) => el.amountSize !== articleAmountSize && el.id !== article.id)
-            // let newCarrito
             let aux = carrito.findIndex((el) => el.id === article.id)
             delete carrito[aux].amountSize[articleAmountSize]
-            // newCarrito = carrito
             //Reviso si la propiedad del objeto quedó vacía, si no el makeCart() armará el carrito sin ningún artículo
             if (Object.getOwnPropertyNames(carrito[aux].amountSize).length === 0) {
-                console.log("entra en el clear")
                 carrito.splice(aux, 1)
             }
+            //Borro el localStorage en caso de que quede un array vacío, situación que se puede dar si existía un único
+            //artículo con varios talles y se elimina. De nuevo el makeCart() armará el carrito sin ningún artículo.
             localStorage.setItem("carrito", JSON.stringify(carrito))  
             if (carrito.length === 0) {
                 localStorage.clear()
@@ -357,17 +379,16 @@ function updateArticlesAfterDelete(articles, article, articleAmountSize) {
         let idSelect = document.getElementById("talles" + article.id)
         let aux = articles.findIndex((el) => el.id === article.id)
         articles[aux].stock[articleAmountSize] += article.amountSize[articleAmountSize]
-        //como se reintegra el stock al estado anterior cambio la situacion del botón añadir al carrito
+        //como se reintegra el stock al estado anterior cambio la situacion del botón a añadir al carrito
         if (idSelect.value === articleAmountSize) {
             thereIsStock(article.id)
-        }
-        return articles
+            }
     }
     //El artículo no tiene varios talles
     else {  
         let aux = articles.findIndex((el) => el.id === article.id)
         articles[aux].stock += article.amount
-        //como se reintegra el stock al estado anterior cambio la situacion del botón añadir al carrito
+        //como se reintegra el stock al estado anterior cambio la situacion del botón a añadir al carrito
             thereIsStock(article.id)
     }
 }
@@ -396,7 +417,7 @@ function ShowButtonsCart(option) {
 //Crea una lista de talles  
 function detailSizes(size, idSize, id) {
     let paragraph = document.getElementById(idSize)
-    paragraph.classList.add("font-size", "text-start")
+    paragraph.classList.add("font-size", "text-start", "sizePadding")
     let options = document.createElement("select")
     options.id = "talles" + id
     paragraph.innerHTML = 
@@ -435,7 +456,6 @@ function searchFunctionInside(e, array) {
     result = array.filter(producto => producto.name.toLowerCase().includes(e.toLowerCase()) || producto.category.toLowerCase().includes(e.toLowerCase()))
     showArticles(result, "sectionArticles", "modalsSection")
     cart(array)
-    makeCart(array)
     return result
 }
 function searchFunction(e, array) {
@@ -445,7 +465,6 @@ function searchFunction(e, array) {
         result = searchFunctionInside(e.target.value, array)
         showArticles(result, "sectionArticles", "modalsSection")
         cart(array)
-        makeCart(array)
       }
       return result
 }
@@ -455,13 +474,11 @@ function orderFunction(e, array) {
         result = array.sort((a, b) => b.price - a.price)
         showArticles(result, "sectionArticles", "modalsSection")     
         cart(array)
-        makeCart(array)
     }
     else if (e.target.value === "menor") {
         result = array.sort((a, b) => a.price - b.price)
         showArticles(result, "sectionArticles", "modalsSection")
         cart(array)
-        makeCart(array)
     }
     else if (e.target.value === "a-z") {
         result = array.sort(function(a, b) {
@@ -479,7 +496,6 @@ function orderFunction(e, array) {
             })
             showArticles(result, "sectionArticles", "modalsSection")
             cart(array)
-            makeCart(array)
     }
     else if (e.target.value === "z-a") {
         result = array.sort(function(a, b) {
@@ -497,7 +513,6 @@ function orderFunction(e, array) {
             })
             showArticles(result, "sectionArticles", "modalsSection")
             cart(array)
-            makeCart(array)
     }
 }
 function filtersFunction(e, articles) {
@@ -506,14 +521,14 @@ function filtersFunction(e, articles) {
         result = articles
         showArticles(articles, "sectionArticles", "modalsSection")
         cart(articles)
-        makeCart(articles)
     }
     else {
         result = articles.filter(producto => e.target.value === producto.category)
-        showArticles(result, "sectionArticles", "modalsSection")
+        showArticles(result, "sectionArticles", "modalsSection") 
         cart(articles)
-        makeCart(articles)  
     }
+    let order = document.getElementById("filterOrder")
+    order.addEventListener("input", (e) => orderFunction(e, result))
     return result
 }
 function showFilterList(articles, idDiv) {
@@ -569,7 +584,8 @@ function articles() {
                     reject("Error de conexión")
                     window.location.href = "../pages/404.html"
                 })
-        }, 2500)
+        }, 0)
+        // 2500
     })
 }
 //Agrego esta función en caso de que el stock sea cero 
@@ -783,8 +799,8 @@ function startProgram(articles) {
     showArticles(articles, "sectionArticles", "modalsSection")
     cart(articles)
     makeCart(articles)
-    //Opto por usar una variable alternativa para que se pueda ordenar lo que se filtró o se buscó
-    filters.addEventListener("input", (e) => { filtersFunction(e, aux)})
+    //Opto por usar dos variables alternativas para que se pueda ordenar lo que se filtró o se buscó
+    filters.addEventListener("input", (e) => {filtersFunction(e, aux)})
     order.addEventListener("input", (e) => orderFunction(e, aux))
     search.addEventListener("keydown", (e) => {aux = searchFunction(e, articles)})
     searchInput.addEventListener("click", () => {
