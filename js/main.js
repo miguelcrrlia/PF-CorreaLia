@@ -223,14 +223,14 @@ function addArticle(e, articles) {
     }
     if (article.size !== "único" && article.size !== "s/t") {
         //Agrego este llamado para que cuando cambie de talle el botón se actualice a "artículo agotado" ó "añadir al carrito"
-        selectSize.addEventListener("change", () => {reviewStock(carrito, selectSize.value, article.id)})
+        selectSize.addEventListener("change", () => {reviewStock(articles, selectSize.value, article.id)})
     }
     makeCart(articles)  
 }
 //Función que revisa el stock para modificar el botón 
-function reviewStock(carrito, selectSize, articleId) {
-    let aux = carrito.findIndex((el) => el.id === articleId) 
-    if (carrito[aux].stock[selectSize] !== 0) {
+function reviewStock(array, selectSize, articleId) {
+    let aux = array.findIndex((el) => el.id === articleId) 
+    if (array[aux].stock[selectSize] > 0) {
         thereIsStock(articleId)
     }
     else {
@@ -347,6 +347,11 @@ function deleteFuntion(articles, idDeleteButton, article, articleAmountSize) {
         //El artículo tiene varios talles
         if (article.size !== "único" && article.size !== "s/t") {
             let aux = carrito.findIndex((el) => el.id === article.id)
+            let auxTwo = articles.findIndex((el) => el.id === article.id)
+            let buttonAdd = document.getElementById(article.id)
+            //Le devuelvo el stock del talle
+            articles[auxTwo].stock[articleAmountSize] += carrito[aux].amountSize[articleAmountSize]
+            carrito[aux].stock[articleAmountSize] += carrito[aux].amountSize[articleAmountSize]
             delete carrito[aux].amountSize[articleAmountSize]
             //Reviso si la propiedad del objeto quedó vacía, si no el makeCart() armará el carrito sin ningún artículo
             if (Object.getOwnPropertyNames(carrito[aux].amountSize).length === 0) {
@@ -358,39 +363,29 @@ function deleteFuntion(articles, idDeleteButton, article, articleAmountSize) {
             if (carrito.length === 0) {
                 localStorage.clear()
             }
-            updateArticlesAfterDelete(articles, article, articleAmountSize)
+            //Me fijo antes si se encuentra el botón en el DOM
+            if (buttonAdd) {
+                //como se reintegra el stock al estado anterior cambio la situacion del botón a añadir al carrito
+                buttonAdd.addEventListener("change", reviewStock(articles, articleAmountSize, article.id))
+            }
+            // updateArticlesAfterDelete(articles, article, articleAmountSize)
             makeCart(articles)
         }
         //El artículo no tiene varios talles
         else {
             let newCarrito = carrito.filter((el) => el.id !== article.id)
+            let aux = articles.findIndex((el) => el.id === article.id)
+            articles[aux].stock += article.amount
+            //como se reintegra el stock al estado anterior cambio la situacion del botón a añadir al carrito
+                thereIsStock(article.id)
             localStorage.setItem("carrito", JSON.stringify(newCarrito))  
             if (newCarrito.length === 0) {
                 localStorage.clear()
             }
-            updateArticlesAfterDelete(articles, article)
+            // updateArticlesAfterDelete(articles, article)
             makeCart(articles)
         }
     })
-}
-function updateArticlesAfterDelete(articles, article, articleAmountSize) {
-    //El artículo tiene varios talles
-    if (article.size !== "único" && article.size !== "s/t") {
-        let idSelect = document.getElementById("talles" + article.id)
-        let aux = articles.findIndex((el) => el.id === article.id)
-        articles[aux].stock[articleAmountSize] += article.amountSize[articleAmountSize]
-        //como se reintegra el stock al estado anterior cambio la situacion del botón a añadir al carrito
-        if (idSelect.value === articleAmountSize) {
-            thereIsStock(article.id)
-            }
-    }
-    //El artículo no tiene varios talles
-    else {  
-        let aux = articles.findIndex((el) => el.id === article.id)
-        articles[aux].stock += article.amount
-        //como se reintegra el stock al estado anterior cambio la situacion del botón a añadir al carrito
-            thereIsStock(article.id)
-    }
 }
 //Esconde o muestra el carrito
 function showCart() {
@@ -783,7 +778,7 @@ function showArticles(articles, idDiv, idDivtwo) {
 }
 //Función principal
 function startProgram(articles) {
-    let saveLocal = functionJSON
+    let saveLocal = functionJSON() 
     articles = updateArticles(articles, saveLocal)
     let aux = articles
     let filters = document.getElementById("filterCategory")
