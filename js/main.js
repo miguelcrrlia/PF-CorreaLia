@@ -139,28 +139,28 @@ function addArticle(e, articles) {
                         localStorage.setItem("carrito", JSON.stringify(carrito))
                         //Actualiza el stock de los artículos que hay en la tienda
                         articles = updateArticles(articles, carrito)
+                    }
                 }
-                }
-        }
-        //El artículo no tiene talles
-        else {
-            //Cuando no hay stock
-            if (article.stock <= 0) {
-                outOfStock(article.id)
-            }   
-            //Cuando hay stock
+            }
+            //El artículo no tiene talles
             else {
-                toastify("Se agregó el artículo al carrito")
-                carrito[aux].amount ++
-                carrito[aux].stock --
-                carrito[aux].subtotal = Number(carrito[aux].price) * Number(carrito[aux].amount)
-                //Actualiza el localStorage
-                localStorage.setItem("carrito", JSON.stringify(carrito))
-                //Actualiza el stock de los artículos que hay en la tienda
-                articles = updateArticles(articles, carrito)
+                //Cuando no hay stock
+                if (article.stock <= 0) {
+                    outOfStock(article.id)
+                }   
+                //Cuando hay stock
+                else {
+                    toastify("Se agregó el artículo al carrito")
+                    carrito[aux].amount ++
+                    carrito[aux].stock --
+                    carrito[aux].subtotal = Number(carrito[aux].price) * Number(carrito[aux].amount)
+                    //Actualiza el localStorage
+                    localStorage.setItem("carrito", JSON.stringify(carrito))
+                    //Actualiza el stock de los artículos que hay en la tienda
+                    articles = updateArticles(articles, carrito)
+                }
             }
         }
-    }
     //Cuando el artículo no existe en el carrtio
     else {
         //El artículo tiene varios talles
@@ -579,8 +579,7 @@ function articles() {
                     reject("Error de conexión")
                     window.location.href = "../pages/404.html"
                 })
-        }, 0)
-        // 2500
+        }, 2500)
     })
 }
 //Agrego esta función en caso de que el stock sea cero 
