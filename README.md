@@ -1,4 +1,7 @@
 # PFCorrealia
+deploy: https://miguelcrrlia.github.io/PFCorreaLia/pages/tienda.html
+
+github: https://github.com/miguelcrrlia/PFCorreaLia
 
 El proyecto trata del sitio web de un club barrial de ajedrez ficticio, el cual posee un e-comerce donde se ofrecen artículos de merchandising o también para la práctica misma del juego.
 
