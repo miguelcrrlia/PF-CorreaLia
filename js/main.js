@@ -588,15 +588,15 @@ function articles() {
 function firstReviewStock(element) {
     //El id del select de los talles de los productos es "talles+artículo.id"
     let AuxIdSelect = "talles" + element.id
-                let selectSizeListen = document.getElementById(AuxIdSelect)
-                selectSizeListen.addEventListener("change", (e) => {
-                    if (element.stock[e.target.value] === 0) {
-                        outOfStock(element.id)
-                    } 
-                    else {
-                        thereIsStock(element.id)
-                    }
-                })
+    let selectSizeListen = document.getElementById(AuxIdSelect)
+    selectSizeListen.addEventListener("change", (e) => {
+        if (element.stock[e.target.value] === 0) {
+            outOfStock(element.id)
+        } 
+        else {
+            thereIsStock(element.id)
+        }
+    })
 } 
 //ShowArticles es la función que muestra los artículos de la tienda, 
 //siendo el primer parámetro un array que los contiene, el segundo la id en donde se ubican 
