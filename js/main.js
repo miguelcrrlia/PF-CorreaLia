@@ -101,6 +101,10 @@ function thereIsStock(articleId) {
         isStock.innerText = "añadir al carrito"
     }
 }
+function variousSizes(articleSize) {
+    let result = (articleSize !== "único" && articleSize !== "s/t") ? true : false
+    return result
+}
 //Agrega artículos al carrito
 function addArticle(e, articles) {
     let carrito = JSON.parse(localStorage.getItem("carrito")) || []
@@ -111,7 +115,7 @@ function addArticle(e, articles) {
         //El artículo existe en el carrito
         if(aux !== -1) {
             //El artículo tiene varios talles
-            if (article.size !== "único" && article.size !== "s/t") {
+            if (variousSizes(article.size)) {
                 //Cuando no se ingresó un talle
                 if (selectSize.value === "") {
                     toastify("¡Se te ha olvidado elegir un talle!", "true")
@@ -164,7 +168,7 @@ function addArticle(e, articles) {
     //Cuando el artículo no existe en el carrtio
     else {
         //El artículo tiene varios talles
-        if (article.size !== "único" && article.size !== "s/t") {
+        if (variousSizes(article.size)) {
             if (selectSize.value === "") {
                 toastify("¡Se te ha olvidado elegir un talle!")
             }
@@ -220,7 +224,7 @@ function addArticle(e, articles) {
             }
         }
     }
-    if (article.size !== "único" && article.size !== "s/t") {
+    if (variousSizes(article.size)) {
         //Agrego este llamado para que cuando cambie de talle el botón se actualice a "artículo agotado" ó "añadir al carrito"
         selectSize.addEventListener("change", () => {reviewStock(articles, selectSize.value, article.id)})
     }
@@ -281,7 +285,7 @@ function makeCart(articles) {
         t.innerHTML = ""
         auxCart.forEach((article) => {
             //El artículo tiene varios talles
-            if (article.size !== "único" && article.size !== "s/t") {
+            if (variousSizes(article.size)) {
                 let auxIdsize = 1
                 for (const art in article.amountSize) {
                     auxAmountSize += Number(article.amountSize[art])
@@ -344,7 +348,7 @@ function deleteFuntion(articles, idDeleteButton, article, articleAmountSize) {
     deleteButton.addEventListener("click", () => {
         let carrito = functionJSON()
         //El artículo tiene varios talles
-        if (article.size !== "único" && article.size !== "s/t") {
+        if (variousSizes(article.size)) {
             let aux = carrito.findIndex((el) => el.id === article.id)
             let auxTwo = articles.findIndex((el) => el.id === article.id)
             let buttonAdd = document.getElementById(article.id)
