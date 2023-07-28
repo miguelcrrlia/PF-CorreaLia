@@ -70,6 +70,7 @@ function finishCart(articles) {
     ShowButtonsCart("close")
     articles = JSON.parse(localStorage.getItem("carrito"))
     localStorage.clear()
+    iconIndicatorTotal(0)
 }
 //Actualiza el stock corriente con respecto al carrito
 function updateArticles(articles, carrito) {   
@@ -330,6 +331,7 @@ function makeCart(articles) {
                     parentElement.insertBefore(item, b) 
                     deleteFuntion(articles, article.id+article.name, article)
             }
+            iconIndicatorTotal(auxAmountSize)
         })
         let buttonClean = document.getElementById("clean")
         let buttonFinish = document.getElementById("finish")
@@ -341,6 +343,22 @@ function makeCart(articles) {
         ShowButtonsCart("close")
         cartAlert.innerText = "El carrito está vacío!"
         cartSection.appendChild(cartAlert)
+        iconIndicatorTotal(0)
+    }
+}
+//Agrega la cantidad de artículos en el icono del carrito
+function iconIndicatorTotal(total) {
+    let icon = document.getElementById("countCart")
+    let circle = document.getElementById("circleCart")
+    let countCart = document.getElementById("countCart")
+    if (total > 0) {
+        circle.classList.remove("hide")
+        countCart.classList.remove("hide")
+        icon.innerHTML= `${total}`
+    }
+    else {
+        circle.classList.add("hide")
+        countCart.classList.add("hide")
     }
 }
 function deleteFuntion(articles, idDeleteButton, article, articleAmountSize) {
